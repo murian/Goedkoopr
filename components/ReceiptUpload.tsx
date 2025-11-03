@@ -71,57 +71,73 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Upload Receipt
+      <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+        Scan Receipt
       </h2>
 
       {/* Upload Area */}
-      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8">
-        <div className="text-center">
-          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-          <div className="mt-4">
-            <label
-              htmlFor="file-upload"
-              className="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-block"
-            >
-              Choose File
-            </label>
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-            />
+      <div className="border-2 border-dashed border-indigo-300 dark:border-indigo-600 rounded-xl p-8 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-slate-800 dark:to-slate-800 transition-all hover:border-indigo-400 dark:hover:border-indigo-500">
+        <div className="flex items-center gap-6">
+          {/* Upload Icon/Button Section */}
+          <div className={`${preview ? 'flex-shrink-0' : 'flex-1 text-center'}`}>
+            {!preview && <Upload className="mx-auto h-12 w-12 text-indigo-400 mb-4" />}
+            <div>
+              <label
+                htmlFor="file-upload"
+                className="cursor-pointer bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl inline-flex items-center gap-2 font-semibold"
+              >
+                <Upload className="w-5 h-5" />
+                {preview ? 'Change Photo' : 'Choose Photo'}
+              </label>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </div>
+            {!preview && (
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                PNG, JPG, GIF up to 10MB
+              </p>
+            )}
           </div>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            PNG, JPG, GIF up to 10MB
-          </p>
-        </div>
 
-        {/* Preview */}
-        {preview && (
-          <div className="mt-6">
-            <img
-              src={preview}
-              alt="Receipt preview"
-              className="max-w-md mx-auto rounded-lg shadow-lg"
-            />
-            <p className="text-center mt-2 text-sm text-gray-600 dark:text-gray-400">
-              {file?.name}
-            </p>
-          </div>
-        )}
+          {/* Thumbnail Preview */}
+          {preview && (
+            <div className="flex-1 flex items-center gap-4">
+              <div className="relative group">
+                <img
+                  src={preview}
+                  alt="Receipt preview"
+                  className="w-32 h-32 object-cover rounded-xl shadow-lg border-2 border-indigo-200 dark:border-indigo-700 transition-transform group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center">
+                  <p className="text-white text-xs font-semibold">Preview</p>
+                </div>
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-xs">
+                  {file?.name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {file && `${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Upload Button */}
         {file && !uploading && !result && (
-          <div className="mt-6 text-center">
+          <div className="mt-6">
             <button
               onClick={handleUpload}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl inline-flex items-center justify-center gap-2 font-bold text-lg"
             >
-              <Upload className="w-5 h-5" />
-              Upload and Scan Receipt
+              <Upload className="w-6 h-6" />
+              Scan Receipt with AI
             </button>
           </div>
         )}

@@ -165,38 +165,86 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
       {chartType === 'category' && categoryData.length > 0 && (
         <div className="grid md:grid-cols-2 gap-6">
           {/* Pie Chart */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
+          <div className="bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 rounded-2xl p-6 shadow-xl border border-indigo-100 dark:border-slate-700">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
               Spending by Category
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
-            <ResponsiveContainer width="100%" height={350}>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Click any segment to view items</p>
+            <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="50%"
-                  outerRadius={120}
-                  innerRadius={60}
-                  label={(entry) => `${entry.percentage.toFixed(1)}%`}
+                  cy="45%"
+                  outerRadius={130}
+                  innerRadius={75}
+                  label={({category_name, percentage, cx, cy, midAngle, innerRadius, outerRadius}) => {
+                    const RADIAN = Math.PI / 180;
+                    const radius = outerRadius + 25;
+                    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                    return (
+                      <text
+                        x={x}
+                        y={y}
+                        fill="#64748b"
+                        textAnchor={x > cx ? 'start' : 'end'}
+                        dominantBaseline="central"
+                        className="text-xs font-semibold"
+                      >
+                        {percentage > 5 ? `${percentage.toFixed(0)}%` : ''}
+                      </text>
+                    );
+                  }}
                   onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
                   style={{ cursor: 'pointer' }}
-                  paddingAngle={2}
+                  paddingAngle={3}
+                  activeShape={{
+                    outerRadius: 135,
+                    stroke: '#fff',
+                    strokeWidth: 2
+                  }}
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.category_color} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.category_color}
+                      style={{
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                      }}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => [`€${value.toFixed(2)}`, 'Amount']}
+                  formatter={(value: number, name: string, props: any) => [
+                    `€${value.toFixed(2)} (${props.payload.percentage.toFixed(1)}%)`,
+                    props.payload.category_name
+                  ]}
                   contentStyle={{
                     backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     border: 'none',
                     borderRadius: '12px',
                     color: '#fff',
                     boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+                    padding: '12px 16px',
+                  }}
+                  itemStyle={{
+                    color: '#fff',
+                    fontWeight: '600'
+                  }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  iconSize={10}
+                  wrapperStyle={{
+                    paddingTop: '20px',
+                    fontSize: '13px',
+                    fontWeight: '500'
                   }}
                 />
               </PieChart>
