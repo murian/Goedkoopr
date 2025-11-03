@@ -161,8 +161,8 @@ The app uses SQLite with the following tables:
 ## 🤖 AI Integration
 
 ### Google Gemini
-- Uses `gemini-1.5-flash` model
-- Fast and accurate receipt parsing
+- Uses `gemini-1.5-pro` model
+- Powerful and accurate receipt parsing
 - Excellent image recognition capabilities
 - Free tier available with generous limits
 - Supports images up to 10MB
