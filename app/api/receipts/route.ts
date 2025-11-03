@@ -127,20 +127,44 @@ export async function POST(request: NextRequest) {
     for (const item of parsedReceipt.items) {
       // Find or create product
       let product = db
-        .prepare('SELECT * FROM products WHERE name = ?')
+        .prepare('SELECT * FROM products WHERE LOWER(name) = LOWER(?)')
         .get(item.product_name);
 
-      if (!product && item.suggested_category) {
+      if (item.suggested_category) {
+        // Find category (case-insensitive match)
         const category = db
-          .prepare('SELECT * FROM categories WHERE name = ?')
+          .prepare('SELECT * FROM categories WHERE LOWER(name) = LOWER(?)')
           .get(item.suggested_category);
 
         if (category) {
-          const insertProduct = db.prepare(
-            'INSERT INTO products (name, category_id) VALUES (?, ?)'
-          );
-          const productResult = insertProduct.run(item.product_name, category.id);
-          product = { id: productResult.lastInsertRowid };
+          if (!product) {
+            // Create new product with category
+            const insertProduct = db.prepare(
+              'INSERT INTO products (name, category_id) VALUES (?, ?)'
+            );
+            const productResult = insertProduct.run(item.product_name, category.id);
+            product = { id: productResult.lastInsertRowid };
+            console.log(`Created product "${item.product_name}" with category "${category.name}"`);
+          } else if (!product.category_id) {
+            // Update existing product with category if it doesn't have one
+            db.prepare('UPDATE products SET category_id = ? WHERE id = ?').run(
+              category.id,
+              product.id
+            );
+            console.log(`Updated product "${item.product_name}" with category "${category.name}"`);
+          }
+        } else {
+          console.warn(`Category "${item.suggested_category}" not found for item "${item.product_name}"`);
+          // Fallback to "Other" category
+          const otherCategory = db.prepare('SELECT * FROM categories WHERE name = ?').get('Other');
+          if (!product && otherCategory) {
+            const insertProduct = db.prepare(
+              'INSERT INTO products (name, category_id) VALUES (?, ?)'
+            );
+            const productResult = insertProduct.run(item.product_name, otherCategory.id);
+            product = { id: productResult.lastInsertRowid };
+            console.log(`Created product "${item.product_name}" with fallback category "Other"`);
+          }
         }
       }
 
