@@ -29,16 +29,36 @@ export default function Home() {
       const today = new Date();
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
 
-      // Fetch ALL receipts for total count and total savings
-      const allReceiptsResponse = await fetch('/api/receipts');
+      // Fetch ALL receipts for total count and total savings (with cache busting)
+      const timestamp = new Date().getTime();
+      const allReceiptsResponse = await fetch(`/api/receipts?_t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
       if (!allReceiptsResponse.ok) {
         throw new Error('Failed to fetch all receipts');
       }
       const allReceipts = await allReceiptsResponse.json();
 
+      console.log('Fetched receipts from API:', allReceipts.length, 'receipts');
+      console.log('Receipt details:', allReceipts.map((r: any) => ({
+        id: r.id,
+        date: r.receipt_date,
+        amount: r.total_amount,
+        discount: r.discount_amount,
+      })));
+
       // Fetch current month receipts for "This Month" spending
       const monthResponse = await fetch(
-        `/api/receipts?startDate=${firstDay.toISOString().split('T')[0]}`
+        `/api/receipts?startDate=${firstDay.toISOString().split('T')[0]}&_t=${timestamp}`,
+        {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        }
       );
       if (!monthResponse.ok) {
         throw new Error('Failed to fetch month receipts');
