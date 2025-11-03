@@ -30,18 +30,27 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState<'category' | 'time' | 'month'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
+  const [selectedMonth, setSelectedMonth] = useState<string>(''); // for month filter
   const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
 
   useEffect(() => {
     fetchData();
-  }, [dateRange]);
+  }, [dateRange, selectedMonth]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - parseInt(dateRange));
+      let endDate = new Date();
+      let startDate = new Date();
+
+      // If specific month is selected, use that month's range
+      if (selectedMonth) {
+        const [year, month] = selectedMonth.split('-');
+        startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+      } else {
+        startDate.setDate(startDate.getDate() - parseInt(dateRange));
+      }
 
       // Fetch category spending
       const categoryResponse = await fetch(
@@ -82,61 +91,86 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
     <div className="space-y-6">
       {/* Controls */}
       <div className="flex flex-wrap gap-4 items-center justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => setChartType('category')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
               chartType === 'category'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
             }`}
           >
             By Category
           </button>
           <button
             onClick={() => setChartType('month')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
               chartType === 'month'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
             }`}
           >
             By Month
           </button>
           <button
             onClick={() => setChartType('time')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
               chartType === 'time'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
             }`}
           >
             By Day
           </button>
         </div>
 
-        <select
-          value={dateRange}
-          onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-none"
-        >
-          <option value="7">Last 7 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option>
-          <option value="365">Last year</option>
-        </select>
+        <div className="flex gap-2">
+          {/* Month Selector */}
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => {
+              setSelectedMonth(e.target.value);
+              setDateRange('30'); // Reset date range when month is selected
+            }}
+            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            placeholder="Select month"
+          />
+
+          {selectedMonth && (
+            <button
+              onClick={() => setSelectedMonth('')}
+              className="px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 font-medium transition-colors"
+            >
+              Clear
+            </button>
+          )}
+
+          {!selectedMonth && (
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value)}
+              className="px-4 py-2 rounded-xl bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            >
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
+            </select>
+          )}
+        </div>
       </div>
 
       {/* Charts */}
       {chartType === 'category' && categoryData.length > 0 && (
         <div className="grid md:grid-cols-2 gap-6">
           {/* Pie Chart */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
               Spending by Category
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie
                   data={categoryData}
@@ -144,64 +178,81 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                   nameKey="category_name"
                   cx="50%"
                   cy="50%"
-                  outerRadius={100}
+                  outerRadius={120}
+                  innerRadius={60}
                   label={(entry) => `${entry.percentage.toFixed(1)}%`}
                   onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
                   style={{ cursor: 'pointer' }}
+                  paddingAngle={2}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.category_color} />
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => `€${value.toFixed(2)}`}
+                  formatter={(value: number) => [`€${value.toFixed(2)}`, 'Amount']}
                   contentStyle={{
-                    backgroundColor: '#1f2937',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     border: 'none',
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     color: '#fff',
+                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                   }}
                 />
-                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
 
           {/* Bar Chart */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
               Amount by Category
               <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <BarChart data={categoryData} onClick={(data) => {
                 if (data && data.activePayload && data.activePayload[0]) {
                   const payload = data.activePayload[0].payload;
                   setSelectedCategory({ id: payload.category_id, name: payload.category_name, color: payload.category_color });
                 }
               }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <defs>
+                  <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} />
                 <XAxis
                   dataKey="category_name"
                   angle={-45}
                   textAnchor="end"
                   height={100}
-                  stroke="#9ca3af"
+                  stroke="#64748b"
+                  style={{ fontSize: '12px' }}
                 />
                 <YAxis
-                  stroke="#9ca3af"
+                  stroke="#64748b"
                   tickFormatter={(value) => `€${value}`}
+                  style={{ fontSize: '12px' }}
                 />
                 <Tooltip
-                  formatter={(value: number) => `€${value.toFixed(2)}`}
+                  formatter={(value: number) => [`€${value.toFixed(2)}`, 'Spending']}
                   contentStyle={{
-                    backgroundColor: '#1f2937',
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
                     border: 'none',
-                    borderRadius: '8px',
+                    borderRadius: '12px',
                     color: '#fff',
+                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                   }}
+                  cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
                 />
-                <Bar dataKey="total_amount" fill="#3b82f6" style={{ cursor: 'pointer' }} />
+                <Bar
+                  dataKey="total_amount"
+                  fill="url(#colorBar)"
+                  radius={[8, 8, 0, 0]}
+                  style={{ cursor: 'pointer' }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -209,31 +260,48 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
       )}
 
       {chartType === 'time' && timeData.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Spending Over Time
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+          <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
+            Daily Spending
           </h3>
           <ResponsiveContainer width="100%" height={400}>
             <LineChart data={timeData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
+              <defs>
+                <linearGradient id="colorLine" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} />
+              <XAxis
+                dataKey="date"
+                stroke="#64748b"
+                style={{ fontSize: '12px' }}
+              />
+              <YAxis
+                stroke="#64748b"
+                tickFormatter={(value) => `€${value}`}
+                style={{ fontSize: '12px' }}
+              />
               <Tooltip
-                formatter={(value: number) => `€${value.toFixed(2)}`}
+                formatter={(value: number) => [`€${value.toFixed(2)}`, 'Daily Spending']}
                 contentStyle={{
-                  backgroundColor: '#1f2937',
+                  backgroundColor: 'rgba(15, 23, 42, 0.95)',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   color: '#fff',
+                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                 }}
               />
-              <Legend />
               <Line
                 type="monotone"
                 dataKey="amount"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                dot={{ fill: '#3b82f6' }}
+                stroke="#6366f1"
+                strokeWidth={3}
+                dot={{ fill: '#6366f1', r: 5 }}
+                activeDot={{ r: 8 }}
+                fillOpacity={1}
+                fill="url(#colorLine)"
               />
             </LineChart>
           </ResponsiveContainer>
@@ -241,32 +309,44 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
       )}
 
       {chartType === 'month' && monthData.length > 0 && (
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Spending by Month
+        <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
+          <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
+            Monthly Spending
           </h3>
           <ResponsiveContainer width="100%" height={400}>
             <BarChart data={monthData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" />
+              <defs>
+                <linearGradient id="colorMonthBar" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.9}/>
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.7}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} />
+              <XAxis
+                dataKey="date"
+                stroke="#64748b"
+                style={{ fontSize: '12px' }}
+              />
               <YAxis
-                stroke="#9ca3af"
+                stroke="#64748b"
                 tickFormatter={(value) => `€${value}`}
+                style={{ fontSize: '12px' }}
               />
               <Tooltip
-                formatter={(value: number) => `€${value.toFixed(2)}`}
+                formatter={(value: number) => [`€${value.toFixed(2)}`, 'Monthly Total']}
                 contentStyle={{
-                  backgroundColor: '#1f2937',
+                  backgroundColor: 'rgba(15, 23, 42, 0.95)',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '12px',
                   color: '#fff',
+                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
                 }}
+                cursor={{ fill: 'rgba(139, 92, 246, 0.1)' }}
               />
-              <Legend />
               <Bar
                 dataKey="amount"
-                fill="#8b5cf6"
-                radius={[8, 8, 0, 0]}
+                fill="url(#colorMonthBar)"
+                radius={[12, 12, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
