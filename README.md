@@ -1,12 +1,12 @@
 # Receipt Expense Tracker 🧾💰
 
-An AI-powered web application for scanning supermarket receipts, tracking expenses, and comparing product prices across different stores. Built with Next.js, TypeScript, and powered by Claude/OpenAI for intelligent receipt parsing.
+An AI-powered web application for scanning supermarket receipts, tracking expenses, and comparing product prices across different stores. Built with Next.js, TypeScript, and powered by Google Gemini AI for intelligent receipt parsing.
 
 ## ✨ Features
 
 ### 📸 AI-Powered Receipt Scanning
 - Upload receipt images (PNG, JPG, GIF)
-- Automatic extraction of store, date, items, and prices using Claude or OpenAI Vision
+- Automatic extraction of store, date, items, and prices using Google Gemini AI
 - Smart product categorization
 
 ### 📊 Expense Analytics
@@ -38,9 +38,7 @@ An AI-powered web application for scanning supermarket receipts, tracking expens
 ### Prerequisites
 
 - Node.js 18+ installed
-- An API key from either:
-  - [Anthropic (Claude)](https://console.anthropic.com/) - Recommended
-  - [OpenAI](https://platform.openai.com/)
+- A Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
 
 ### Installation
 
@@ -62,15 +60,10 @@ An AI-powered web application for scanning supermarket receipts, tracking expens
    cp .env.local.example .env.local
    ```
 
-   Edit `.env.local` and add your API key(s):
+   Edit `.env.local` and add your Gemini API key:
    ```env
-   # Use Claude (recommended)
-   ANTHROPIC_API_KEY=your_anthropic_api_key_here
-   AI_PROVIDER=claude
-
-   # OR use OpenAI
-   # OPENAI_API_KEY=your_openai_api_key_here
-   # AI_PROVIDER=openai
+   # Google Gemini API Key (required)
+   GEMINI_API_KEY=your_gemini_api_key_here
 
    # Database (optional, default is ./data/receipts.db)
    DATABASE_PATH=./data/receipts.db
@@ -147,7 +140,7 @@ Locations/
 ├── lib/
 │   ├── database.ts       # SQLite database setup
 │   ├── types.ts          # TypeScript type definitions
-│   └── ai-service.ts     # AI integration (Claude/OpenAI)
+│   └── ai-service.ts     # AI integration (Google Gemini)
 ├── data/                 # SQLite database (auto-created)
 ├── public/
 │   └── uploads/          # Uploaded receipt images
@@ -167,15 +160,12 @@ The app uses SQLite with the following tables:
 
 ## 🤖 AI Integration
 
-### Claude (Anthropic) - Recommended
-- Uses `claude-3-5-sonnet-20241022` model
-- Excellent accuracy for receipt parsing
+### Google Gemini
+- Uses `gemini-1.5-flash` model
+- Fast and accurate receipt parsing
+- Excellent image recognition capabilities
+- Free tier available with generous limits
 - Supports images up to 10MB
-
-### OpenAI
-- Uses `gpt-4o` model
-- Alternative option for receipt parsing
-- Good accuracy and speed
 
 The AI extracts:
 - Store name and location
@@ -183,6 +173,13 @@ The AI extracts:
 - Individual items with quantities and prices
 - Tax amount and total
 - Suggested categories for products
+
+### Getting Your Gemini API Key
+
+1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Create API Key"
+4. Copy the key and add it to your `.env.local` file
 
 ## 🎨 Customization
 
@@ -193,13 +190,6 @@ Categories are automatically created during database initialization. To add more
 1. Edit `lib/database.ts`
 2. Add your category to the `categories` array
 3. Restart the app
-
-### Changing AI Provider
-
-Set the `AI_PROVIDER` in `.env.local`:
-```env
-AI_PROVIDER=claude  # or openai
-```
 
 ### Multi-Currency Support
 
@@ -219,10 +209,11 @@ This will recreate the database with the correct schema.
 ### AI Parsing Issues
 
 If receipt parsing fails:
-- Ensure your API key is correct in `.env.local`
+- Ensure your Gemini API key is correct in `.env.local`
+- Verify your API key is active at [Google AI Studio](https://makersuite.google.com/app/apikey)
 - Check that the image is clear and well-lit
 - Verify the image size is under 10MB
-- Try a different AI provider
+- Make sure the receipt text is readable and not blurry
 
 ### Node Modules Issues
 
@@ -264,8 +255,9 @@ You can deploy to any platform that supports Next.js:
 
 - All receipt images are stored locally in the `public/uploads/` folder
 - Database is stored locally in the `data/` folder
-- AI providers (Anthropic/OpenAI) process receipt images but don't store them
-- No data is shared with third parties
+- Google Gemini processes receipt images but doesn't store them permanently
+- No data is shared with third parties beyond Google's AI processing
+- Review [Google's AI Studio Privacy Policy](https://support.google.com/gemini/answer/13594961)
 
 ## 📝 License
 
@@ -290,7 +282,7 @@ Contributions are welcome! Feel free to:
 
 If you encounter any issues or have questions:
 1. Check the troubleshooting section above
-2. Review the API documentation for Claude/OpenAI
+2. Review the [Google Gemini API documentation](https://ai.google.dev/docs)
 3. Open an issue on GitHub
 
 ## 🎉 Enjoy Tracking Your Expenses!

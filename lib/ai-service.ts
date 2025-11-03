@@ -1,16 +1,14 @@
-import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ParsedReceipt } from './types';
 
-const AI_PROVIDER = process.env.AI_PROVIDER || 'claude';
+// Initialize Gemini API
+const geminiApiKey = process.env.GEMINI_API_KEY;
 
-const anthropic = process.env.ANTHROPIC_API_KEY
-  ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-  : null;
+if (!geminiApiKey) {
+  console.warn('GEMINI_API_KEY is not set. Receipt scanning will not work.');
+}
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  : null;
+const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
 const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the receipt image and extract the following information in JSON format:
 
@@ -43,98 +41,49 @@ Important:
 export async function parseReceiptWithAI(
   imageBase64: string
 ): Promise<ParsedReceipt> {
-  if (AI_PROVIDER === 'claude' && anthropic) {
-    return parseWithClaude(imageBase64);
-  } else if (AI_PROVIDER === 'openai' && openai) {
-    return parseWithOpenAI(imageBase64);
-  } else {
+  if (!genAI) {
     throw new Error(
-      `AI provider ${AI_PROVIDER} is not configured. Please set API keys in .env.local`
+      'Gemini API key is not configured. Please set GEMINI_API_KEY in .env.local'
     );
   }
-}
 
-async function parseWithClaude(imageBase64: string): Promise<ParsedReceipt> {
-  if (!anthropic) {
-    throw new Error('Anthropic API key not configured');
-  }
+  try {
+    // Use Gemini Pro Vision model
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-  // Determine media type from base64 prefix
-  let mediaType: 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp' = 'image/jpeg';
-  if (imageBase64.startsWith('data:')) {
-    const match = imageBase64.match(/^data:(image\/\w+);base64,/);
-    if (match) {
-      mediaType = match[1] as any;
-      imageBase64 = imageBase64.split(',')[1];
+    // Remove data URI prefix if present
+    let base64Data = imageBase64;
+    if (imageBase64.startsWith('data:')) {
+      base64Data = imageBase64.split(',')[1];
     }
-  }
 
-  const message = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
-    max_tokens: 2048,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mediaType,
-              data: imageBase64,
-            },
-          },
-          {
-            type: 'text',
-            text: RECEIPT_PARSING_PROMPT,
-          },
-        ],
+    // Determine mime type
+    let mimeType = 'image/jpeg';
+    if (imageBase64.startsWith('data:')) {
+      const match = imageBase64.match(/^data:(image\/\w+);base64,/);
+      if (match) {
+        mimeType = match[1];
+      }
+    }
+
+    const imagePart = {
+      inlineData: {
+        data: base64Data,
+        mimeType: mimeType,
       },
-    ],
-  });
+    };
 
-  const responseText = message.content[0].type === 'text'
-    ? message.content[0].text
-    : '';
+    const result = await model.generateContent([RECEIPT_PARSING_PROMPT, imagePart]);
+    const response = await result.response;
+    const responseText = response.text();
 
-  return parseAIResponse(responseText);
-}
-
-async function parseWithOpenAI(imageBase64: string): Promise<ParsedReceipt> {
-  if (!openai) {
-    throw new Error('OpenAI API key not configured');
+    return parseAIResponse(responseText);
+  } catch (error: any) {
+    console.error('Failed to parse receipt with Gemini:', error);
+    throw new Error(
+      error.message || 'Failed to parse receipt with Gemini API'
+    );
   }
-
-  // Ensure proper data URI format
-  let imageDataUri = imageBase64;
-  if (!imageBase64.startsWith('data:')) {
-    imageDataUri = `data:image/jpeg;base64,${imageBase64}`;
-  }
-
-  const response = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    max_tokens: 2048,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image_url',
-            image_url: {
-              url: imageDataUri,
-            },
-          },
-          {
-            type: 'text',
-            text: RECEIPT_PARSING_PROMPT,
-          },
-        ],
-      },
-    ],
-  });
-
-  const responseText = response.choices[0]?.message?.content || '';
-  return parseAIResponse(responseText);
 }
 
 function parseAIResponse(responseText: string): ParsedReceipt {
@@ -166,9 +115,11 @@ function parseAIResponse(responseText: string): ParsedReceipt {
   }
 }
 
-export async function classifyProduct(
-  productName: string
-): Promise<string> {
+export async function classifyProduct(productName: string): Promise<string> {
+  if (!genAI) {
+    return 'Other';
+  }
+
   const prompt = `Classify this product into ONE of these categories: Groceries, Household, Personal Care, Beverages, Snacks, Dairy, Meat & Fish, Fruits & Vegetables, Bakery, Other.
 
 Product: ${productName}
@@ -176,28 +127,12 @@ Product: ${productName}
 Return ONLY the category name, nothing else.`;
 
   try {
-    if (AI_PROVIDER === 'claude' && anthropic) {
-      const message = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 50,
-        messages: [{ role: 'user', content: prompt }],
-      });
-
-      return message.content[0].type === 'text'
-        ? message.content[0].text.trim()
-        : 'Other';
-    } else if (AI_PROVIDER === 'openai' && openai) {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        max_tokens: 50,
-        messages: [{ role: 'user', content: prompt }],
-      });
-
-      return response.choices[0]?.message?.content?.trim() || 'Other';
-    }
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text().trim();
   } catch (error) {
     console.error('Failed to classify product:', error);
+    return 'Other';
   }
-
-  return 'Other';
 }
