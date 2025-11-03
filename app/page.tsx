@@ -16,6 +16,7 @@ export default function Home() {
     receiptCount: 0,
     averageSpent: 0,
     thisMonth: 0,
+    totalSavings: 0,
   });
 
   useEffect(() => {
@@ -33,6 +34,7 @@ export default function Home() {
       const receipts = await response.json();
 
       const totalSpent = receipts.reduce((sum: number, r: any) => sum + r.total_amount, 0);
+      const totalSavings = receipts.reduce((sum: number, r: any) => sum + (r.discount_amount || 0), 0);
       const receiptCount = receipts.length;
 
       setStats({
@@ -40,6 +42,7 @@ export default function Home() {
         receiptCount,
         averageSpent: receiptCount > 0 ? totalSpent / receiptCount : 0,
         thisMonth: totalSpent,
+        totalSavings,
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
@@ -109,12 +112,12 @@ export default function Home() {
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Total Spent</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${stats.totalSpent.toFixed(2)}
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Savings</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  ${stats.totalSavings.toFixed(2)}
                 </p>
               </div>
-              <AlertCircle className="w-8 h-8 text-orange-500" />
+              <AlertCircle className="w-8 h-8 text-green-500" />
             </div>
           </div>
         </div>

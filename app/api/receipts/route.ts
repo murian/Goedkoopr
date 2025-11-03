@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
 
     // Insert receipt
     const insertReceipt = db.prepare(`
-      INSERT INTO receipts (store_id, receipt_date, total_amount, currency, tax_amount, image_path)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO receipts (store_id, receipt_date, total_amount, currency, tax_amount, discount_amount, image_path)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     const receiptResult = insertReceipt.run(
@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
       parsedReceipt.total_amount,
       parsedReceipt.currency,
       parsedReceipt.tax_amount,
+      parsedReceipt.discount_amount || 0,
       `/uploads/${filename}`
     );
 
@@ -119,8 +120,8 @@ export async function POST(request: NextRequest) {
 
     // Insert receipt items
     const insertItem = db.prepare(`
-      INSERT INTO receipt_items (receipt_id, product_name, quantity, unit_price, total_price, product_id)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO receipt_items (receipt_id, product_name, quantity, unit_price, total_price, original_price, discount_amount, product_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     for (const item of parsedReceipt.items) {
@@ -149,6 +150,8 @@ export async function POST(request: NextRequest) {
         item.quantity,
         item.unit_price,
         item.total_price,
+        item.original_price || 0,
+        item.discount_amount || 0,
         product?.id || null
       );
     }

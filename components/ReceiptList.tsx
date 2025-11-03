@@ -99,14 +99,21 @@ export default function ReceiptList({ onUpdate }: ReceiptListProps) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-                  <span className="text-lg font-bold text-gray-900 dark:text-white">
-                    ${receipt.total_amount.toFixed(2)}
-                  </span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {receipt.currency}
-                  </span>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">
+                      ${receipt.total_amount.toFixed(2)}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      {receipt.currency}
+                    </span>
+                  </div>
+                  {receipt.discount_amount > 0 && (
+                    <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      💰 Saved ${receipt.discount_amount.toFixed(2)}
+                    </div>
+                  )}
                 </div>
               </div>
 

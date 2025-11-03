@@ -36,12 +36,20 @@ export function initDatabase() {
       total_amount REAL NOT NULL,
       currency TEXT DEFAULT 'USD',
       tax_amount REAL DEFAULT 0,
+      discount_amount REAL DEFAULT 0,
       image_path TEXT,
       raw_text TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE SET NULL
     )
   `);
+
+  // Add discount_amount column if it doesn't exist (for existing databases)
+  try {
+    db.exec(`ALTER TABLE receipts ADD COLUMN discount_amount REAL DEFAULT 0`);
+  } catch (error) {
+    // Column already exists, ignore error
+  }
 
   // Categories table
   db.exec(`
@@ -74,11 +82,25 @@ export function initDatabase() {
       quantity REAL DEFAULT 1,
       unit_price REAL NOT NULL,
       total_price REAL NOT NULL,
+      original_price REAL DEFAULT 0,
+      discount_amount REAL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (receipt_id) REFERENCES receipts(id) ON DELETE CASCADE,
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
     )
   `);
+
+  // Add discount columns if they don't exist (for existing databases)
+  try {
+    db.exec(`ALTER TABLE receipt_items ADD COLUMN original_price REAL DEFAULT 0`);
+  } catch (error) {
+    // Column already exists, ignore error
+  }
+  try {
+    db.exec(`ALTER TABLE receipt_items ADD COLUMN discount_amount REAL DEFAULT 0`);
+  } catch (error) {
+    // Column already exists, ignore error
+  }
 
   // Budgets table
   db.exec(`

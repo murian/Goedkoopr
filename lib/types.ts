@@ -13,6 +13,7 @@ export interface Receipt {
   total_amount: number;
   currency: string;
   tax_amount: number;
+  discount_amount: number;
   image_path?: string;
   raw_text?: string;
   created_at: string;
@@ -41,6 +42,8 @@ export interface ReceiptItem {
   quantity: number;
   unit_price: number;
   total_price: number;
+  original_price: number;
+  discount_amount: number;
   created_at: string;
 }
 
@@ -64,11 +67,14 @@ export interface ParsedReceipt {
   total_amount: number;
   currency: string;
   tax_amount: number;
+  discount_amount: number;
   items: {
     product_name: string;
     quantity: number;
     unit_price: number;
     total_price: number;
+    original_price: number;
+    discount_amount: number;
     suggested_category?: string;
   }[];
 }

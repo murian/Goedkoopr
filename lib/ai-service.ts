@@ -19,12 +19,15 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
   "total_amount": 0.00,
   "currency": "USD",
   "tax_amount": 0.00,
+  "discount_amount": 0.00,
   "items": [
     {
       "product_name": "Product name",
       "quantity": 1,
       "unit_price": 0.00,
       "total_price": 0.00,
+      "original_price": 0.00,
+      "discount_amount": 0.00,
       "suggested_category": "Category name from: Groceries, Household, Personal Care, Beverages, Snacks, Dairy, Meat & Fish, Fruits & Vegetables, Bakery, Other"
     }
   ]
@@ -33,6 +36,11 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
 Important:
 - Extract ALL items from the receipt
 - Calculate unit_price if only total_price is shown (total_price / quantity)
+- For discounts: Look for crossed-out prices, "was" prices, sale indicators, or discount lines
+- If an item has a discount: original_price is the pre-discount price, discount_amount is the savings
+- If no discount: original_price = 0, discount_amount = 0
+- total_price is the final price paid (after discount)
+- discount_amount at receipt level is the total discounts/savings shown on the receipt
 - Suggest the most appropriate category for each item
 - Use the exact total and tax amounts shown on the receipt
 - If currency is not specified, assume USD

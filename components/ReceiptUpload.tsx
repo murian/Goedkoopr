@@ -184,6 +184,14 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
                   {result.items.length} items
                 </p>
               </div>
+              {result.receipt.discount_amount > 0 && (
+                <div className="col-span-2">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Total Savings</p>
+                  <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
+                    -${result.receipt.discount_amount.toFixed(2)} saved!
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Items List */}
@@ -193,14 +201,28 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
                 {result.items.map((item: any, index: number) => (
                   <div
                     key={index}
-                    className="flex justify-between text-sm bg-white dark:bg-gray-800 p-2 rounded"
+                    className="flex justify-between items-start text-sm bg-white dark:bg-gray-800 p-2 rounded"
                   >
-                    <span className="text-gray-700 dark:text-gray-300">
-                      {item.quantity}x {item.product_name}
-                    </span>
-                    <span className="font-semibold text-gray-900 dark:text-white">
-                      ${item.total_price.toFixed(2)}
-                    </span>
+                    <div className="flex-1">
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {item.quantity}x {item.product_name}
+                      </span>
+                      {item.discount_amount > 0 && (
+                        <div className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          Was ${item.original_price.toFixed(2)} • Saved ${item.discount_amount.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <span className="font-semibold text-gray-900 dark:text-white">
+                        ${item.total_price.toFixed(2)}
+                      </span>
+                      {item.discount_amount > 0 && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 line-through">
+                          ${item.original_price.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
