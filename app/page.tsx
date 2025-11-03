@@ -26,39 +26,57 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      // Fetch receipts for current month
       const today = new Date();
       const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-      const response = await fetch(
+
+      // Fetch ALL receipts for total count and total savings
+      const allReceiptsResponse = await fetch('/api/receipts');
+      if (!allReceiptsResponse.ok) {
+        throw new Error('Failed to fetch all receipts');
+      }
+      const allReceipts = await allReceiptsResponse.json();
+
+      // Fetch current month receipts for "This Month" spending
+      const monthResponse = await fetch(
         `/api/receipts?startDate=${firstDay.toISOString().split('T')[0]}`
       );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch receipts');
+      if (!monthResponse.ok) {
+        throw new Error('Failed to fetch month receipts');
       }
+      const monthReceipts = await monthResponse.json();
 
-      const receipts = await response.json();
-
-      // Ensure numbers are parsed correctly and handle null/undefined values
-      const totalSpent = receipts.reduce((sum: number, r: any) => {
+      // Calculate totals from ALL receipts
+      const totalSpent = allReceipts.reduce((sum: number, r: any) => {
         const amount = Number(r.total_amount) || 0;
         return sum + amount;
       }, 0);
 
-      const totalSavings = receipts.reduce((sum: number, r: any) => {
+      const totalSavings = allReceipts.reduce((sum: number, r: any) => {
         const discount = Number(r.discount_amount) || 0;
         return sum + discount;
       }, 0);
 
-      const receiptCount = receipts.length;
+      const receiptCount = allReceipts.length;
 
-      console.log('Stats calculated:', { totalSpent, totalSavings, receiptCount });
+      // Calculate this month's spending
+      const thisMonthSpent = monthReceipts.reduce((sum: number, r: any) => {
+        const amount = Number(r.total_amount) || 0;
+        return sum + amount;
+      }, 0);
+
+      console.log('Stats calculated:', {
+        totalReceipts: receiptCount,
+        thisMonthReceipts: monthReceipts.length,
+        totalSpent,
+        thisMonthSpent,
+        totalSavings
+      });
 
       setStats({
         totalSpent,
         receiptCount,
         averageSpent: receiptCount > 0 ? totalSpent / receiptCount : 0,
-        thisMonth: totalSpent,
+        thisMonth: thisMonthSpent,
         totalSavings,
       });
     } catch (error) {
