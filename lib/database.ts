@@ -118,17 +118,20 @@ export function initDatabase() {
     )
   `);
 
-  // Insert default categories
+  // Insert default categories (specific categories for grocery items)
   const categories = [
-    { name: 'Groceries', color: '#10B981' },
-    { name: 'Household', color: '#6366F1' },
-    { name: 'Personal Care', color: '#EC4899' },
-    { name: 'Beverages', color: '#F59E0B' },
-    { name: 'Snacks', color: '#EF4444' },
-    { name: 'Dairy', color: '#8B5CF6' },
+    { name: 'Fruits & Vegetables', color: '#10B981' },
     { name: 'Meat & Fish', color: '#DC2626' },
-    { name: 'Fruits & Vegetables', color: '#059669' },
-    { name: 'Bakery', color: '#D97706' },
+    { name: 'Dairy & Eggs', color: '#8B5CF6' },
+    { name: 'Bakery & Bread', color: '#D97706' },
+    { name: 'Beverages', color: '#F59E0B' },
+    { name: 'Snacks & Sweets', color: '#EF4444' },
+    { name: 'Frozen Foods', color: '#06B6D4' },
+    { name: 'Pantry & Canned', color: '#84CC16' },
+    { name: 'Condiments & Sauces', color: '#F97316' },
+    { name: 'Household & Cleaning', color: '#6366F1' },
+    { name: 'Personal Care', color: '#EC4899' },
+    { name: 'Pet Supplies', color: '#A855F7' },
     { name: 'Other', color: '#6B7280' }
   ];
 

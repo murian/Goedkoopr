@@ -28,7 +28,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
       "total_price": 0.00,
       "original_price": 0.00,
       "discount_amount": 0.00,
-      "suggested_category": "Category name from: Groceries, Household, Personal Care, Beverages, Snacks, Dairy, Meat & Fish, Fruits & Vegetables, Bakery, Other"
+      "suggested_category": "Category name - choose the MOST SPECIFIC category from: Fruits & Vegetables, Meat & Fish, Dairy & Eggs, Bakery & Bread, Beverages, Snacks & Sweets, Frozen Foods, Pantry & Canned, Condiments & Sauces, Household & Cleaning, Personal Care, Pet Supplies, Other"
     }
   ]
 }
@@ -41,7 +41,18 @@ Important:
 - If no discount: original_price = 0, discount_amount = 0
 - total_price is the final price paid (after discount)
 - discount_amount at receipt level is the total discounts/savings shown on the receipt
-- Suggest the most appropriate category for each item
+- **IMPORTANT**: Choose the MOST SPECIFIC category for each item. For example:
+  - Milk, cheese, yogurt, butter → "Dairy & Eggs"
+  - Apples, lettuce, tomatoes → "Fruits & Vegetables"
+  - Chicken, beef, salmon → "Meat & Fish"
+  - Bread, croissants, muffins → "Bakery & Bread"
+  - Water, soda, juice, coffee → "Beverages"
+  - Chips, cookies, candy, chocolate → "Snacks & Sweets"
+  - Ice cream, frozen pizza, frozen vegetables → "Frozen Foods"
+  - Rice, pasta, canned beans, flour → "Pantry & Canned"
+  - Ketchup, mayo, soy sauce, spices → "Condiments & Sauces"
+  - Soap, detergent, paper towels → "Household & Cleaning"
+  - Shampoo, toothpaste, deodorant → "Personal Care"
 - Use the exact total and tax amounts shown on the receipt
 - If currency is not specified, assume EUR
 - Return ONLY valid JSON, no additional text`;
