@@ -49,7 +49,7 @@ export async function parseReceiptWithAI(
 
   try {
     // Use Gemini Pro Vision model
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' });
 
     // Remove data URI prefix if present
     let base64Data = imageBase64;
@@ -127,7 +127,7 @@ Product: ${productName}
 Return ONLY the category name, nothing else.`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text().trim();
