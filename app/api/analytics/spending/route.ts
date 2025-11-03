@@ -111,3 +111,43 @@ function getSpendingOverTime(startDate: string | null, endDate: string | null) {
 
   return NextResponse.json(spending);
 }
+
+function getSpendingByMonth(startDate: string | null, endDate: string | null) {
+  let query = `
+    SELECT
+      strftime('%Y-%m', receipt_date) as date,
+      SUM(total_amount) as amount
+    FROM receipts
+    WHERE 1=1
+  `;
+  const params: any[] = [];
+
+  if (startDate) {
+    query += ' AND receipt_date >= ?';
+    params.push(startDate);
+  }
+
+  if (endDate) {
+    query += ' AND receipt_date <= ?';
+    params.push(endDate);
+  }
+
+  query += ' GROUP BY strftime(\'%Y-%m\', receipt_date) ORDER BY date ASC';
+
+  const results = db.prepare(query).all(...params) as any[];
+
+  // Ensure amounts are properly parsed as numbers and format month names
+  const spending: SpendingOverTime[] = results.map(r => {
+    // Convert "2025-11" to "Nov 2025"
+    const [year, month] = r.date.split('-');
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthName = monthNames[parseInt(month) - 1];
+
+    return {
+      date: `${monthName} ${year}`,
+      amount: Number(r.amount) || 0,
+    };
+  });
+
+  return NextResponse.json(spending);
+}
