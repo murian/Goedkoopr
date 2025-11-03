@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
       return getSpendingByCategory(startDate, endDate);
     } else if (groupBy === 'time') {
       return getSpendingOverTime(startDate, endDate);
+    } else if (groupBy === 'month') {
+      return getSpendingByMonth(startDate, endDate);
     }
 
     return NextResponse.json(

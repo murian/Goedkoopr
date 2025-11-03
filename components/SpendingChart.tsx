@@ -26,8 +26,9 @@ interface SpendingChartProps {
 export default function SpendingChart({ onRefresh }: SpendingChartProps) {
   const [categoryData, setCategoryData] = useState<SpendingByCategory[]>([]);
   const [timeData, setTimeData] = useState<SpendingOverTime[]>([]);
+  const [monthData, setMonthData] = useState<SpendingOverTime[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chartType, setChartType] = useState<'category' | 'time'>('category');
+  const [chartType, setChartType] = useState<'category' | 'time' | 'month'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
   const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
 
@@ -49,12 +50,19 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
       const categoryResult = await categoryResponse.json();
       setCategoryData(categoryResult);
 
-      // Fetch time-based spending
+      // Fetch time-based spending (daily)
       const timeResponse = await fetch(
         `/api/analytics/spending?groupBy=time&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
       );
       const timeResult = await timeResponse.json();
       setTimeData(timeResult);
+
+      // Fetch month-based spending
+      const monthResponse = await fetch(
+        `/api/analytics/spending?groupBy=month&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+      );
+      const monthResult = await monthResponse.json();
+      setMonthData(monthResult);
     } catch (error) {
       console.error('Failed to fetch spending data:', error);
     } finally {
@@ -86,6 +94,16 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
             By Category
           </button>
           <button
+            onClick={() => setChartType('month')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              chartType === 'month'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+          >
+            By Month
+          </button>
+          <button
             onClick={() => setChartType('time')}
             className={`px-4 py-2 rounded-lg transition-colors ${
               chartType === 'time'
@@ -93,7 +111,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
             }`}
           >
-            Over Time
+            By Day
           </button>
         </div>
 
@@ -170,7 +188,10 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                   height={100}
                   stroke="#9ca3af"
                 />
-                <YAxis stroke="#9ca3af" />
+                <YAxis
+                  stroke="#9ca3af"
+                  tickFormatter={(value) => `€${value}`}
+                />
                 <Tooltip
                   formatter={(value: number) => `€${value.toFixed(2)}`}
                   contentStyle={{
@@ -219,7 +240,40 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
         </div>
       )}
 
-      {categoryData.length === 0 && timeData.length === 0 && (
+      {chartType === 'month' && monthData.length > 0 && (
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Spending by Month
+          </h3>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={monthData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="date" stroke="#9ca3af" />
+              <YAxis
+                stroke="#9ca3af"
+                tickFormatter={(value) => `€${value}`}
+              />
+              <Tooltip
+                formatter={(value: number) => `€${value.toFixed(2)}`}
+                contentStyle={{
+                  backgroundColor: '#1f2937',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#fff',
+                }}
+              />
+              <Legend />
+              <Bar
+                dataKey="amount"
+                fill="#8b5cf6"
+                radius={[8, 8, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {categoryData.length === 0 && timeData.length === 0 && monthData.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
             No spending data available for the selected period.
