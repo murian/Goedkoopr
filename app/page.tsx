@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Receipt, TrendingUp, ShoppingCart, Sparkles, Upload, Download, Search } from 'lucide-react';
+import { Receipt, TrendingUp, ShoppingCart, Sparkles, Upload, Download, Search, Camera, X } from 'lucide-react';
 import ReceiptUpload from '@/components/ReceiptUpload';
 import SpendingChart from '@/components/SpendingChart';
 import ReceiptList from '@/components/ReceiptList';
@@ -11,6 +11,7 @@ import ExportData from '@/components/ExportData';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [showUploadModal, setShowUploadModal] = useState(false);
   const [stats, setStats] = useState({
     totalSpent: 0,
     receiptCount: 0,
@@ -49,12 +50,16 @@ export default function Home() {
     }
   };
 
+  const handleUploadSuccess = () => {
+    fetchStats();
+    setShowUploadModal(false);
+  };
+
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
     { id: 'receipts', label: 'Receipts', icon: Receipt },
     { id: 'compare', label: 'Compare Prices', icon: ShoppingCart },
     { id: 'budgets', label: 'Budgets', icon: Sparkles },
-    { id: 'upload', label: 'Upload Receipt', icon: Upload },
     { id: 'export', label: 'Export Data', icon: Download },
   ];
 
@@ -62,13 +67,25 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
-        <div className="mb-12 text-center">
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Receipt Tracker
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
-            AI-powered expense tracking with smart insights
-          </p>
+        <div className="mb-12">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                Receipt Tracker
+              </h1>
+              <p className="text-lg text-slate-600 dark:text-slate-300">
+                AI-powered expense tracking with smart insights
+              </p>
+            </div>
+            {/* Quick Upload Button in Header */}
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              <Camera className="w-5 h-5" />
+              <span className="font-semibold">Scan Receipt</span>
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -178,10 +195,42 @@ export default function Home() {
 
           {activeTab === 'budgets' && <BudgetTracker />}
 
-          {activeTab === 'upload' && <ReceiptUpload onUploadSuccess={fetchStats} />}
-
           {activeTab === 'export' && <ExportData />}
         </div>
+
+        {/* Floating Action Button */}
+        <button
+          onClick={() => setShowUploadModal(true)}
+          className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-110 z-50 flex items-center justify-center group"
+          aria-label="Scan receipt"
+        >
+          <Camera className="w-7 h-7 group-hover:scale-110 transition-transform" />
+          <span className="absolute right-full mr-3 px-3 py-1 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            Scan Receipt
+          </span>
+        </button>
+
+        {/* Upload Modal */}
+        {showUploadModal && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slideUp">
+              <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Scan Receipt
+                </h2>
+                <button
+                  onClick={() => setShowUploadModal(false)}
+                  className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                >
+                  <X className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+                </button>
+              </div>
+              <div className="p-6">
+                <ReceiptUpload onUploadSuccess={handleUploadSuccess} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
