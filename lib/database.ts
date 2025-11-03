@@ -118,21 +118,24 @@ export function initDatabase() {
     )
   `);
 
-  // Insert default categories (specific categories for grocery items)
+  // Insert default categories (comprehensive categories for grocery items)
   const categories = [
     { name: 'Fruits & Vegetables', color: '#10B981' },
     { name: 'Meat & Fish', color: '#DC2626' },
     { name: 'Dairy & Eggs', color: '#8B5CF6' },
     { name: 'Bakery & Bread', color: '#D97706' },
-    { name: 'Beverages', color: '#F59E0B' },
+    { name: 'Beverages', color: '#3B82F6' },
+    { name: 'Coffee & Tea', color: '#78350F' },
+    { name: 'Alcohol & Wine', color: '#BE123C' },
     { name: 'Snacks & Sweets', color: '#EF4444' },
     { name: 'Frozen Foods', color: '#06B6D4' },
     { name: 'Pantry & Canned', color: '#84CC16' },
     { name: 'Condiments & Sauces', color: '#F97316' },
+    { name: 'Deli & Prepared Foods', color: '#F59E0B' },
     { name: 'Household & Cleaning', color: '#6366F1' },
-    { name: 'Personal Care', color: '#EC4899' },
-    { name: 'Pet Supplies', color: '#A855F7' },
-    { name: 'Other', color: '#6B7280' }
+    { name: 'Personal Care & Health', color: '#EC4899' },
+    { name: 'Baby Products', color: '#FB923C' },
+    { name: 'Pet Supplies', color: '#A855F7' }
   ];
 
   const insertCategory = db.prepare(

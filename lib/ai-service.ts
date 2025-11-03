@@ -28,7 +28,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
       "total_price": 0.00,
       "original_price": 0.00,
       "discount_amount": 0.00,
-      "suggested_category": "Category name - choose the MOST SPECIFIC category from: Fruits & Vegetables, Meat & Fish, Dairy & Eggs, Bakery & Bread, Beverages, Snacks & Sweets, Frozen Foods, Pantry & Canned, Condiments & Sauces, Household & Cleaning, Personal Care, Pet Supplies, Other"
+      "suggested_category": "Category name - choose the MOST SPECIFIC category from: Fruits & Vegetables, Meat & Fish, Dairy & Eggs, Bakery & Bread, Beverages, Coffee & Tea, Alcohol & Wine, Snacks & Sweets, Frozen Foods, Pantry & Canned, Condiments & Sauces, Deli & Prepared Foods, Household & Cleaning, Personal Care & Health, Baby Products, Pet Supplies"
     }
   ]
 }
@@ -41,18 +41,24 @@ Important:
 - If no discount: original_price = 0, discount_amount = 0
 - total_price is the final price paid (after discount)
 - discount_amount at receipt level is the total discounts/savings shown on the receipt
-- **IMPORTANT**: Choose the MOST SPECIFIC category for each item. For example:
-  - Milk, cheese, yogurt, butter → "Dairy & Eggs"
-  - Apples, lettuce, tomatoes → "Fruits & Vegetables"
-  - Chicken, beef, salmon → "Meat & Fish"
-  - Bread, croissants, muffins → "Bakery & Bread"
-  - Water, soda, juice, coffee → "Beverages"
-  - Chips, cookies, candy, chocolate → "Snacks & Sweets"
-  - Ice cream, frozen pizza, frozen vegetables → "Frozen Foods"
-  - Rice, pasta, canned beans, flour → "Pantry & Canned"
-  - Ketchup, mayo, soy sauce, spices → "Condiments & Sauces"
-  - Soap, detergent, paper towels → "Household & Cleaning"
-  - Shampoo, toothpaste, deodorant → "Personal Care"
+- **IMPORTANT**: Choose the MOST SPECIFIC category for each item. AVOID generic categorization. Examples:
+  - Fresh/frozen fruits, vegetables, salad → "Fruits & Vegetables"
+  - Chicken, beef, pork, fish, seafood → "Meat & Fish"
+  - Milk, cheese, yogurt, butter, eggs, cream → "Dairy & Eggs"
+  - Bread, croissants, muffins, bagels, tortillas → "Bakery & Bread"
+  - Water, soda, juice (non-coffee/tea) → "Beverages"
+  - Coffee, tea, hot chocolate → "Coffee & Tea"
+  - Beer, wine, spirits, liquor → "Alcohol & Wine"
+  - Chips, cookies, candy, chocolate, gum → "Snacks & Sweets"
+  - Ice cream, frozen pizza, frozen meals, frozen vegetables → "Frozen Foods"
+  - Rice, pasta, canned goods, beans, flour, sugar, cereal → "Pantry & Canned"
+  - Ketchup, mayo, mustard, soy sauce, oil, vinegar, spices → "Condiments & Sauces"
+  - Rotisserie chicken, pre-made salads, deli meats, sandwiches → "Deli & Prepared Foods"
+  - Soap, detergent, paper towels, trash bags, cleaning supplies → "Household & Cleaning"
+  - Shampoo, toothpaste, deodorant, medicine, vitamins, bandages → "Personal Care & Health"
+  - Diapers, baby food, baby wipes, formula → "Baby Products"
+  - Dog/cat food, pet treats, litter → "Pet Supplies"
+- Every item MUST fit into one of these categories - be creative with categorization
 - Use the exact total and tax amounts shown on the receipt
 - If currency is not specified, assume EUR
 - Return ONLY valid JSON, no additional text`;

@@ -17,6 +17,7 @@ import {
   Line,
 } from 'recharts';
 import { SpendingByCategory, SpendingOverTime } from '@/lib/types';
+import CategoryItems from './CategoryItems';
 
 interface SpendingChartProps {
   onRefresh?: () => void;
@@ -28,6 +29,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState<'category' | 'time'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
+  const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -114,6 +116,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Spending by Category
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
@@ -125,6 +128,8 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                   cy="50%"
                   outerRadius={100}
                   label={(entry) => `${entry.percentage.toFixed(1)}%`}
+                  onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
+                  style={{ cursor: 'pointer' }}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.category_color} />
@@ -148,9 +153,15 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
               Amount by Category
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={categoryData}>
+              <BarChart data={categoryData} onClick={(data) => {
+                if (data && data.activePayload && data.activePayload[0]) {
+                  const payload = data.activePayload[0].payload;
+                  setSelectedCategory({ id: payload.category_id, name: payload.category_name, color: payload.category_color });
+                }
+              }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                 <XAxis
                   dataKey="category_name"
@@ -169,7 +180,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                     color: '#fff',
                   }}
                 />
-                <Bar dataKey="total_amount" fill="#3b82f6" />
+                <Bar dataKey="total_amount" fill="#3b82f6" style={{ cursor: 'pointer' }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -217,6 +228,16 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
             Upload some receipts to see your spending analytics!
           </p>
         </div>
+      )}
+
+      {/* Category Items Modal */}
+      {selectedCategory && (
+        <CategoryItems
+          categoryId={selectedCategory.id}
+          categoryName={selectedCategory.name}
+          categoryColor={selectedCategory.color}
+          onClose={() => setSelectedCategory(null)}
+        />
       )}
     </div>
   );

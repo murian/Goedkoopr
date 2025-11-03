@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
 function getSpendingByCategory(startDate: string | null, endDate: string | null) {
   let query = `
     SELECT
+      c.id as category_id,
       c.name as category_name,
       c.color as category_color,
       SUM(ri.total_price) as total_amount
@@ -65,6 +66,7 @@ function getSpendingByCategory(startDate: string | null, endDate: string | null)
   const spending: SpendingByCategory[] = results.map(r => {
     const amount = Number(r.total_amount) || 0;
     return {
+      category_id: r.category_id,
       category_name: r.category_name || 'Uncategorized',
       category_color: r.category_color || '#6B7280',
       total_amount: amount,
