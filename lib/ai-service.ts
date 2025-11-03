@@ -56,8 +56,8 @@ export async function parseReceiptWithAI(
   }
 
   try {
-    // Use Gemini 2.5 Pro model
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    // Use Gemini 2.5 Flash model
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     // Remove data URI prefix if present
     let base64Data = imageBase64;
@@ -135,7 +135,7 @@ Product: ${productName}
 Return ONLY the category name, nothing else.`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;
     return response.text().trim();
