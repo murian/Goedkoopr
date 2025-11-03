@@ -131,7 +131,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value: number) => `$€{value.toFixed(2)}`}
+                  formatter={(value: number) => `€${value.toFixed(2)}`}
                   contentStyle={{
                     backgroundColor: '#1f2937',
                     border: 'none',
@@ -161,7 +161,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                 />
                 <YAxis stroke="#9ca3af" />
                 <Tooltip
-                  formatter={(value: number) => `$€{value.toFixed(2)}`}
+                  formatter={(value: number) => `€${value.toFixed(2)}`}
                   contentStyle={{
                     backgroundColor: '#1f2937',
                     border: 'none',
@@ -187,7 +187,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
               <XAxis dataKey="date" stroke="#9ca3af" />
               <YAxis stroke="#9ca3af" />
               <Tooltip
-                formatter={(value: number) => `$€{value.toFixed(2)}`}
+                formatter={(value: number) => `€${value.toFixed(2)}`}
                 contentStyle={{
                   backgroundColor: '#1f2937',
                   border: 'none',

@@ -32,11 +32,27 @@ export default function Home() {
       const response = await fetch(
         `/api/receipts?startDate=${firstDay.toISOString().split('T')[0]}`
       );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch receipts');
+      }
+
       const receipts = await response.json();
 
-      const totalSpent = receipts.reduce((sum: number, r: any) => sum + r.total_amount, 0);
-      const totalSavings = receipts.reduce((sum: number, r: any) => sum + (r.discount_amount || 0), 0);
+      // Ensure numbers are parsed correctly and handle null/undefined values
+      const totalSpent = receipts.reduce((sum: number, r: any) => {
+        const amount = Number(r.total_amount) || 0;
+        return sum + amount;
+      }, 0);
+
+      const totalSavings = receipts.reduce((sum: number, r: any) => {
+        const discount = Number(r.discount_amount) || 0;
+        return sum + discount;
+      }, 0);
+
       const receiptCount = receipts.length;
+
+      console.log('Stats calculated:', { totalSpent, totalSavings, receiptCount });
 
       setStats({
         totalSpent,

@@ -56,15 +56,21 @@ function getSpendingByCategory(startDate: string | null, endDate: string | null)
 
   const results = db.prepare(query).all(...params) as any[];
 
-  // Calculate total for percentages
-  const total = results.reduce((sum, r) => sum + r.total_amount, 0);
+  // Calculate total for percentages - ensure numbers are parsed correctly
+  const total = results.reduce((sum, r) => {
+    const amount = Number(r.total_amount) || 0;
+    return sum + amount;
+  }, 0);
 
-  const spending: SpendingByCategory[] = results.map(r => ({
-    category_name: r.category_name || 'Uncategorized',
-    category_color: r.category_color || '#6B7280',
-    total_amount: r.total_amount,
-    percentage: total > 0 ? (r.total_amount / total) * 100 : 0,
-  }));
+  const spending: SpendingByCategory[] = results.map(r => {
+    const amount = Number(r.total_amount) || 0;
+    return {
+      category_name: r.category_name || 'Uncategorized',
+      category_color: r.category_color || '#6B7280',
+      total_amount: amount,
+      percentage: total > 0 ? (amount / total) * 100 : 0,
+    };
+  });
 
   return NextResponse.json(spending);
 }
@@ -91,7 +97,13 @@ function getSpendingOverTime(startDate: string | null, endDate: string | null) {
 
   query += ' GROUP BY DATE(receipt_date) ORDER BY date ASC';
 
-  const results = db.prepare(query).all(...params) as SpendingOverTime[];
+  const results = db.prepare(query).all(...params) as any[];
 
-  return NextResponse.json(results);
+  // Ensure amounts are properly parsed as numbers
+  const spending: SpendingOverTime[] = results.map(r => ({
+    date: r.date,
+    amount: Number(r.amount) || 0,
+  }));
+
+  return NextResponse.json(spending);
 }
