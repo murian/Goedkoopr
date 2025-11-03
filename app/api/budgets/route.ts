@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
       category_id || null,
       amount,
       period,
-      currency || 'USD',
+      currency || 'EUR',
       start_date,
       endDate.toISOString().split('T')[0]
     );

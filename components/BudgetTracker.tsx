@@ -13,7 +13,7 @@ export default function BudgetTracker() {
     category_id: '',
     amount: '',
     period: 'monthly',
-    currency: 'USD',
+    currency: 'EUR',
     start_date: new Date().toISOString().split('T')[0],
   });
 
@@ -61,7 +61,7 @@ export default function BudgetTracker() {
           category_id: '',
           amount: '',
           period: 'monthly',
-          currency: 'USD',
+          currency: 'EUR',
           start_date: new Date().toISOString().split('T')[0],
         });
         fetchData();
@@ -237,10 +237,10 @@ export default function BudgetTracker() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600 dark:text-gray-400">
-                      Spent: ${budgetStatus.spent.toFixed(2)}
+                      Spent: €{budgetStatus.spent.toFixed(2)}
                     </span>
                     <span className="text-gray-600 dark:text-gray-400">
-                      Budget: ${budget.amount.toFixed(2)}
+                      Budget: €{budget.amount.toFixed(2)}
                     </span>
                   </div>
 
@@ -268,7 +268,7 @@ export default function BudgetTracker() {
                       {budgetStatus.percentage.toFixed(1)}% used
                     </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      ${Math.abs(budgetStatus.remaining).toFixed(2)}{' '}
+                      €{Math.abs(budgetStatus.remaining).toFixed(2)}{' '}
                       {isExceeded ? 'over budget' : 'remaining'}
                     </span>
                   </div>

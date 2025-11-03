@@ -175,7 +175,7 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Amount</p>
                 <p className="font-semibold text-gray-900 dark:text-white">
-                  ${result.receipt.total_amount.toFixed(2)} {result.receipt.currency}
+                  €{result.receipt.total_amount.toFixed(2)} {result.receipt.currency}
                 </p>
               </div>
               <div>
@@ -188,7 +188,7 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
                 <div className="col-span-2">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total Savings</p>
                   <p className="font-semibold text-green-600 dark:text-green-400 text-lg">
-                    -${result.receipt.discount_amount.toFixed(2)} saved!
+                    -€{result.receipt.discount_amount.toFixed(2)} saved!
                   </p>
                 </div>
               )}
@@ -209,17 +209,17 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
                       </span>
                       {item.discount_amount > 0 && (
                         <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          Was ${item.original_price.toFixed(2)} • Saved ${item.discount_amount.toFixed(2)}
+                          Was €{item.original_price.toFixed(2)} • Saved €{item.discount_amount.toFixed(2)}
                         </div>
                       )}
                     </div>
                     <div className="text-right">
                       <span className="font-semibold text-gray-900 dark:text-white">
-                        ${item.total_price.toFixed(2)}
+                        €{item.total_price.toFixed(2)}
                       </span>
                       {item.discount_amount > 0 && (
                         <div className="text-xs text-gray-500 dark:text-gray-400 line-through">
-                          ${item.original_price.toFixed(2)}
+                          €{item.original_price.toFixed(2)}
                         </div>
                       )}
                     </div>

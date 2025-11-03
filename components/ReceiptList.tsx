@@ -103,7 +103,7 @@ export default function ReceiptList({ onUpdate }: ReceiptListProps) {
                   <div className="flex items-center gap-2">
                     <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
                     <span className="text-lg font-bold text-gray-900 dark:text-white">
-                      ${receipt.total_amount.toFixed(2)}
+                      €{receipt.total_amount.toFixed(2)}
                     </span>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
                       {receipt.currency}
@@ -111,7 +111,7 @@ export default function ReceiptList({ onUpdate }: ReceiptListProps) {
                   </div>
                   {receipt.discount_amount > 0 && (
                     <div className="text-xs text-green-600 dark:text-green-400 mt-1">
-                      💰 Saved ${receipt.discount_amount.toFixed(2)}
+                      💰 Saved €{receipt.discount_amount.toFixed(2)}
                     </div>
                   )}
                 </div>
@@ -171,13 +171,13 @@ export default function ReceiptList({ onUpdate }: ReceiptListProps) {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    ${selectedReceipt.total_amount.toFixed(2)}
+                    €{selectedReceipt.total_amount.toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Tax</p>
                   <p className="font-semibold text-gray-900 dark:text-white">
-                    ${selectedReceipt.tax_amount.toFixed(2)}
+                    €{selectedReceipt.tax_amount.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -202,10 +202,10 @@ export default function ReceiptList({ onUpdate }: ReceiptListProps) {
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-900 dark:text-white">
-                          ${item.total_price.toFixed(2)}
+                          €{item.total_price.toFixed(2)}
                         </p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {item.quantity} × ${item.unit_price.toFixed(2)}
+                          {item.quantity} × €{item.unit_price.toFixed(2)}
                         </p>
                       </div>
                     </div>

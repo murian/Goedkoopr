@@ -103,7 +103,7 @@ export default function ProductComparison() {
                 <div className="flex items-center gap-2">
                   <TrendingDown className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    ${comparison.lowest_price.toFixed(2)}
+                    €{comparison.lowest_price.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -111,7 +111,7 @@ export default function ProductComparison() {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Average Price</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ${comparison.average_price.toFixed(2)}
+                  €{comparison.average_price.toFixed(2)}
                 </p>
               </div>
 
@@ -120,7 +120,7 @@ export default function ProductComparison() {
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-red-600 dark:text-red-400" />
                   <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    ${comparison.highest_price.toFixed(2)}
+                    €{comparison.highest_price.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default function ProductComparison() {
                   Potential Savings
                 </p>
                 <p className="text-xl font-bold text-green-600 dark:text-green-400">
-                  ${(comparison.highest_price - comparison.lowest_price).toFixed(2)}
+                  €{(comparison.highest_price - comparison.lowest_price).toFixed(2)}
                   <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
                     ({(((comparison.highest_price - comparison.lowest_price) / comparison.highest_price) * 100).toFixed(1)}% off)
                   </span>
@@ -192,14 +192,14 @@ export default function ProductComparison() {
 
                         <div className="text-right">
                           <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                            ${price.unit_price.toFixed(2)}
+                            €{price.unit_price.toFixed(2)}
                           </p>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             {price.currency}
                           </p>
                           {!isLowest && comparison.lowest_price > 0 && (
                             <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                              +${(price.unit_price - comparison.lowest_price).toFixed(2)} more
+                              +€{(price.unit_price - comparison.lowest_price).toFixed(2)} more
                             </p>
                           )}
                         </div>

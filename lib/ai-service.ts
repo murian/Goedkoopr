@@ -17,7 +17,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
   "store_location": "Store location/address if available",
   "receipt_date": "Date in YYYY-MM-DD format",
   "total_amount": 0.00,
-  "currency": "USD",
+  "currency": "EUR",
   "tax_amount": 0.00,
   "discount_amount": 0.00,
   "items": [
@@ -43,7 +43,7 @@ Important:
 - discount_amount at receipt level is the total discounts/savings shown on the receipt
 - Suggest the most appropriate category for each item
 - Use the exact total and tax amounts shown on the receipt
-- If currency is not specified, assume USD
+- If currency is not specified, assume EUR
 - Return ONLY valid JSON, no additional text`;
 
 export async function parseReceiptWithAI(
