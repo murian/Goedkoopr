@@ -161,10 +161,10 @@ The app uses SQLite with the following tables:
 ## 🤖 AI Integration
 
 ### Google Gemini
-- Uses `gemini-pro-vision` model for receipt scanning
-- Uses `gemini-pro` model for text classification
-- Stable and reliable vision capabilities
-- Excellent image recognition for receipts
+- Uses `gemini-2.5-pro` model (latest version)
+- Advanced multimodal capabilities for receipt scanning
+- Excellent image recognition and text extraction
+- Improved accuracy for complex receipts
 - Free tier available with generous limits
 - Supports images up to 10MB
 
