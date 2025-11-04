@@ -10,11 +10,44 @@ if (!geminiApiKey) {
 
 const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
-const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the receipt image and extract the following information in JSON format:
+const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the receipt image and extract the following information in JSON format.
+
+⚠️ **MOST CRITICAL REQUIREMENT - STORE LOCATION**:
+The "store_location" field is MANDATORY and EXTREMELY important. You MUST extract the store's physical address from the receipt.
+
+WHERE TO FIND THE ADDRESS:
+1. Look at the TOP of the receipt (header area) - most receipts print the store address here
+2. Look at the BOTTOM of the receipt (footer area) - some receipts print address at the end
+3. Look for text that includes: street names, building numbers, postal codes, city names
+4. Look for branch numbers, store IDs, or location identifiers
+
+WHAT TO EXTRACT:
+- Street name and number (e.g., "Kalverstraat 152")
+- Postal/ZIP code (e.g., "1012 XE")
+- City name (e.g., "Amsterdam")
+- Store/branch number if visible (e.g., "Branch 2410")
+
+EXAMPLES OF GOOD LOCATION EXTRACTION:
+✓ "Kalverstraat 152, 1012 XE Amsterdam"
+✓ "Damrak 89, 1012 LP Amsterdam"
+✓ "Branch 2410, Leidsestraat 35, Amsterdam"
+✓ "Store #145, Hoofdstraat 20, Utrecht"
+
+EXAMPLES OF BAD LOCATION EXTRACTION (DO NOT DO THIS):
+✗ "Amsterdam" (too vague - which location?)
+✗ "Netherlands" (country is not enough)
+✗ "" (empty - NEVER leave empty!)
+
+IF COMPLETE ADDRESS IS NOT VISIBLE:
+- Extract whatever location information you can find (street name, area, store number, etc.)
+- Include store/branch numbers as they help identify different locations
+- Use any visible location identifiers
+
+JSON FORMAT:
 
 {
   "store_name": "Name of the store",
-  "store_location": "FULL store address including street, number, city, and postal code if visible on receipt. This is CRITICAL - extract the complete address to distinguish different store locations.",
+  "store_location": "FULL address with street, number, postal code, city, and/or branch number - NEVER leave this empty!",
   "receipt_date": "Date in YYYY-MM-DD format",
   "total_amount": 0.00,
   "currency": "EUR",
@@ -33,8 +66,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
   ]
 }
 
-Important:
-- **CRITICAL FOR LOCATION**: Extract the COMPLETE address from the receipt header/footer. Look for street name, street number, postal code, and city. Include ALL address components visible on the receipt (e.g. "Kalverstraat 152, 1012 XE Amsterdam" not just "Amsterdam"). Different store locations MUST have different addresses.
+Important Rules:
 - Extract ALL items from the receipt
 - Calculate unit_price if only total_price is shown (total_price / quantity)
 - For discounts: Look for crossed-out prices, "was" prices, sale indicators, or discount lines

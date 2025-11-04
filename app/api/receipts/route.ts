@@ -73,6 +73,14 @@ export async function POST(request: NextRequest) {
     // Parse receipt with AI
     const parsedReceipt = await parseReceiptWithAI(base64);
 
+    // Log what the AI extracted for debugging
+    console.log(`\n📄 Receipt parsed by AI:`);
+    console.log(`   Store: ${parsedReceipt.store_name}`);
+    console.log(`   Location: ${parsedReceipt.store_location || 'NOT EXTRACTED ⚠️'}`);
+    console.log(`   Date: ${parsedReceipt.receipt_date}`);
+    console.log(`   Total: €${parsedReceipt.total_amount}`);
+    console.log(`   Items: ${parsedReceipt.items.length}\n`);
+
     // Save image to disk
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
     if (!fs.existsSync(uploadsDir)) {
@@ -85,7 +93,16 @@ export async function POST(request: NextRequest) {
     fs.writeFileSync(filepath, buffer);
 
     // Find or create store - match by BOTH name AND location to distinguish different store locations
-    const storeLocation = parsedReceipt.store_location || null;
+    const storeLocation = parsedReceipt.store_location?.trim() || null;
+
+    // Validation: Warn if location is missing or too vague
+    if (!storeLocation || storeLocation.length < 5) {
+      console.warn(`⚠️ WARNING: Store location missing or too vague for "${parsedReceipt.store_name}"`);
+      console.warn(`   Extracted location: "${storeLocation || 'EMPTY'}"`);
+      console.warn(`   This may cause multiple locations to be grouped together.`);
+      console.warn(`   AI should extract: street + number + postal code + city`);
+    }
+
     let store;
 
     if (storeLocation) {
@@ -105,7 +122,14 @@ export async function POST(request: NextRequest) {
         storeLocation
       );
       store = { id: result.lastInsertRowid };
-      console.log(`Created new store: ${parsedReceipt.store_name} at ${storeLocation || 'unknown location'}`);
+
+      if (storeLocation) {
+        console.log(`✓ Created new store: "${parsedReceipt.store_name}" at "${storeLocation}"`);
+      } else {
+        console.warn(`⚠️ Created new store: "${parsedReceipt.store_name}" with NO LOCATION - locations may be merged!`);
+      }
+    } else {
+      console.log(`✓ Using existing store: "${parsedReceipt.store_name}" at "${storeLocation}"`);
     }
 
     // Insert receipt
