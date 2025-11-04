@@ -18,6 +18,7 @@ import {
 } from 'recharts';
 import { SpendingByCategory, SpendingOverTime } from '@/lib/types';
 import CategoryItems from './CategoryItems';
+import StoreMap from './StoreMap';
 
 interface SpendingChartProps {
   onRefresh?: () => void;
@@ -28,7 +29,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
   const [timeData, setTimeData] = useState<SpendingOverTime[]>([]);
   const [monthData, setMonthData] = useState<SpendingOverTime[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chartType, setChartType] = useState<'category' | 'time' | 'month'>('category');
+  const [chartType, setChartType] = useState<'category' | 'time' | 'month' | 'locations'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // for month filter
   const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
@@ -79,7 +80,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
     }
   };
 
-  if (loading) {
+  if (loading && chartType !== 'locations') {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -121,6 +122,16 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
             }`}
           >
             By Day
+          </button>
+          <button
+            onClick={() => setChartType('locations')}
+            className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
+              chartType === 'locations'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
+            }`}
+          >
+            Store Locations
           </button>
         </div>
 
@@ -170,16 +181,16 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
               Spending by Category
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Click any segment to view items</p>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={500}>
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="45%"
-                  outerRadius={130}
-                  innerRadius={75}
+                  cy="40%"
+                  outerRadius={110}
+                  innerRadius={65}
                   label={({category_name, percentage, cx, cy, midAngle, innerRadius, outerRadius}) => {
                     const RADIAN = Math.PI / 180;
                     const radius = outerRadius + 25;
@@ -203,7 +214,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 135,
+                    outerRadius: 115,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -401,7 +412,11 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
         </div>
       )}
 
-      {categoryData.length === 0 && timeData.length === 0 && monthData.length === 0 && (
+      {chartType === 'locations' && (
+        <StoreMap />
+      )}
+
+      {chartType !== 'locations' && categoryData.length === 0 && timeData.length === 0 && monthData.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
             No spending data available for the selected period.
