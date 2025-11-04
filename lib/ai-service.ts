@@ -14,7 +14,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
 
 {
   "store_name": "Name of the store",
-  "store_location": "Store location/address if available",
+  "store_location": "FULL store address including street, number, city, and postal code if visible on receipt. This is CRITICAL - extract the complete address to distinguish different store locations.",
   "receipt_date": "Date in YYYY-MM-DD format",
   "total_amount": 0.00,
   "currency": "EUR",
@@ -34,6 +34,7 @@ const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the
 }
 
 Important:
+- **CRITICAL FOR LOCATION**: Extract the COMPLETE address from the receipt header/footer. Look for street name, street number, postal code, and city. Include ALL address components visible on the receipt (e.g. "Kalverstraat 152, 1012 XE Amsterdam" not just "Amsterdam"). Different store locations MUST have different addresses.
 - Extract ALL items from the receipt
 - Calculate unit_price if only total_price is shown (total_price / quantity)
 - For discounts: Look for crossed-out prices, "was" prices, sale indicators, or discount lines

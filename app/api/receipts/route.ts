@@ -84,20 +84,28 @@ export async function POST(request: NextRequest) {
     const filepath = path.join(uploadsDir, filename);
     fs.writeFileSync(filepath, buffer);
 
-    // Find or create store
-    let store = db
-      .prepare('SELECT * FROM stores WHERE name = ?')
-      .get(parsedReceipt.store_name);
+    // Find or create store - match by BOTH name AND location to distinguish different store locations
+    const storeLocation = parsedReceipt.store_location || null;
+    let store;
+
+    if (storeLocation) {
+      // Try to find store by both name and location
+      store = db
+        .prepare('SELECT * FROM stores WHERE name = ? AND location = ?')
+        .get(parsedReceipt.store_name, storeLocation);
+    }
 
     if (!store) {
+      // If not found, create new store with specific location
       const insertStore = db.prepare(
         'INSERT INTO stores (name, location) VALUES (?, ?)'
       );
       const result = insertStore.run(
         parsedReceipt.store_name,
-        parsedReceipt.store_location || null
+        storeLocation
       );
       store = { id: result.lastInsertRowid };
+      console.log(`Created new store: ${parsedReceipt.store_name} at ${storeLocation || 'unknown location'}`);
     }
 
     // Insert receipt
