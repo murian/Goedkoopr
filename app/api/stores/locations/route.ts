@@ -14,19 +14,48 @@ interface StoreLocation {
 // Simple cache for geocoded locations to avoid repeated API calls
 const geocodeCache = new Map<string, { lat: number; lon: number } | null>();
 
+function cleanAddressForGeocoding(address: string): string {
+  let cleaned = address;
+
+  // Remove "Store XXXX" or "Branch XXXX" prefixes
+  cleaned = cleaned.replace(/Store\s+\d+,?\s*/i, '');
+  cleaned = cleaned.replace(/Branch\s+\d+,?\s*/i, '');
+  cleaned = cleaned.replace(/Fili[aä]al\s+\d+,?\s*/i, '');
+
+  // Remove building number ranges like "1065-1070" - keep just the first number
+  cleaned = cleaned.replace(/(\d+)-\d+/g, '$1');
+
+  // Clean up extra commas and spaces
+  cleaned = cleaned.replace(/,\s*,/g, ',');
+  cleaned = cleaned.replace(/\s+/g, ' ');
+  cleaned = cleaned.trim();
+
+  return cleaned;
+}
+
 async function geocodeLocation(location: string): Promise<{ lat: number; lon: number } | null> {
   if (!location || location.trim() === '') return null;
 
-  // Check cache first
-  if (geocodeCache.has(location)) {
-    return geocodeCache.get(location)!;
+  // Clean the address first
+  const cleanedLocation = cleanAddressForGeocoding(location);
+
+  console.log(`🌍 Geocoding: "${location}" → "${cleanedLocation}"`);
+
+  // Check cache first (using cleaned version)
+  if (geocodeCache.has(cleanedLocation)) {
+    const cached = geocodeCache.get(cleanedLocation)!;
+    if (cached) {
+      console.log(`   ✓ Cache hit: ${cached.lat}, ${cached.lon}`);
+    } else {
+      console.log(`   ✗ Cache hit: previously failed`);
+    }
+    return cached;
   }
 
   try {
-    // Use Nominatim (OpenStreetMap) for free geocoding
-    // Add a user agent as required by Nominatim usage policy
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`,
+    // Try with cleaned address first
+    let response = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cleanedLocation)}&format=json&limit=1&countrycodes=nl`,
       {
         headers: {
           'User-Agent': 'ReceiptExpenseTracker/1.0',
@@ -35,27 +64,52 @@ async function geocodeLocation(location: string): Promise<{ lat: number; lon: nu
     );
 
     if (!response.ok) {
-      console.error('Geocoding failed:', response.statusText);
-      geocodeCache.set(location, null);
+      console.error('   ✗ Geocoding failed:', response.statusText);
+      geocodeCache.set(cleanedLocation, null);
       return null;
     }
 
-    const data = await response.json();
+    let data = await response.json();
+
+    // If no results, try with just street and city (remove house number)
+    if (!data || data.length === 0) {
+      const simplifiedAddress = cleanedLocation.replace(/\d+[a-z]?,?\s*/g, '').trim();
+      console.log(`   ⚠️ No results, trying simplified: "${simplifiedAddress}"`);
+
+      // Wait 1 second to respect rate limits
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(simplifiedAddress)}&format=json&limit=1&countrycodes=nl`,
+        {
+          headers: {
+            'User-Agent': 'ReceiptExpenseTracker/1.0',
+          },
+        }
+      );
+
+      if (response.ok) {
+        data = await response.json();
+      }
+    }
 
     if (data && data.length > 0) {
       const result = {
         lat: parseFloat(data[0].lat),
         lon: parseFloat(data[0].lon),
       };
-      geocodeCache.set(location, result);
+      console.log(`   ✓ SUCCESS: ${result.lat}, ${result.lon}`);
+      console.log(`   Found: ${data[0].display_name}`);
+      geocodeCache.set(cleanedLocation, result);
       return result;
     }
 
-    geocodeCache.set(location, null);
+    console.log(`   ✗ No results found`);
+    geocodeCache.set(cleanedLocation, null);
     return null;
   } catch (error) {
-    console.error('Error geocoding location:', location, error);
-    geocodeCache.set(location, null);
+    console.error('   ✗ Error geocoding:', error);
+    geocodeCache.set(cleanedLocation, null);
     return null;
   }
 }
