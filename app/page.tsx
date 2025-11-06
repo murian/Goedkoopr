@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Receipt, TrendingUp, ShoppingCart, Sparkles, Upload, Download, Search, Camera, X } from 'lucide-react';
+import { Receipt, TrendingUp, Sparkles, Download, Camera, X } from 'lucide-react';
 import ReceiptUpload from '@/components/ReceiptUpload';
 import SpendingChart from '@/components/SpendingChart';
 import ReceiptList from '@/components/ReceiptList';
 import BudgetTracker from '@/components/BudgetTracker';
-import ProductComparison from '@/components/ProductComparison';
 import ExportData from '@/components/ExportData';
 
 export default function Home() {
@@ -110,11 +109,10 @@ export default function Home() {
   };
 
   const tabs = [
-    { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+    { id: 'dashboard', label: 'Analytics', icon: TrendingUp },
     { id: 'receipts', label: 'Receipts', icon: Receipt },
-    { id: 'compare', label: 'Compare Prices', icon: ShoppingCart },
     { id: 'budgets', label: 'Budgets', icon: Sparkles },
-    { id: 'export', label: 'Export Data', icon: Download },
+    { id: 'export', label: 'Export', icon: Download },
   ];
 
   return (
@@ -237,15 +235,13 @@ export default function Home() {
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-                Spending Overview
+                Spending Analytics
               </h2>
               <SpendingChart onRefresh={fetchStats} />
             </div>
           )}
 
           {activeTab === 'receipts' && <ReceiptList onUpdate={fetchStats} />}
-
-          {activeTab === 'compare' && <ProductComparison />}
 
           {activeTab === 'budgets' && <BudgetTracker />}
 
