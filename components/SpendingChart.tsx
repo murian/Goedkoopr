@@ -19,6 +19,7 @@ import {
 import { SpendingByCategory, SpendingOverTime } from '@/lib/types';
 import CategoryItems from './CategoryItems';
 import StoreMap from './StoreMap';
+import PriceComparison from './PriceComparison';
 
 interface SpendingChartProps {
   onRefresh?: () => void;
@@ -29,7 +30,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
   const [timeData, setTimeData] = useState<SpendingOverTime[]>([]);
   const [monthData, setMonthData] = useState<SpendingOverTime[]>([]);
   const [loading, setLoading] = useState(true);
-  const [chartType, setChartType] = useState<'category' | 'time' | 'month' | 'locations'>('category');
+  const [chartType, setChartType] = useState<'category' | 'time' | 'month' | 'locations' | 'prices'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // for month filter
   const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
@@ -80,7 +81,7 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
     }
   };
 
-  if (loading && chartType !== 'locations') {
+  if (loading && chartType !== 'locations' && chartType !== 'prices') {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -132,6 +133,16 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
             }`}
           >
             Store Locations
+          </button>
+          <button
+            onClick={() => setChartType('prices')}
+            className={`px-4 py-2 rounded-xl font-semibold transition-all duration-200 ${
+              chartType === 'prices'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg'
+                : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:shadow-md'
+            }`}
+          >
+            Price Comparison
           </button>
         </div>
 
@@ -416,7 +427,11 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
         <StoreMap />
       )}
 
-      {chartType !== 'locations' && categoryData.length === 0 && timeData.length === 0 && monthData.length === 0 && (
+      {chartType === 'prices' && (
+        <PriceComparison />
+      )}
+
+      {chartType !== 'locations' && chartType !== 'prices' && categoryData.length === 0 && timeData.length === 0 && monthData.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
             No spending data available for the selected period.
