@@ -185,14 +185,75 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
 
       {/* Charts */}
       {chartType === 'category' && categoryData.length > 0 && (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Pie Chart */}
-          <div className="bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 rounded-2xl p-6 shadow-xl border border-indigo-100 dark:border-slate-700">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <div className="bg-gradient-to-br from-white via-indigo-50/30 to-purple-50/30 dark:from-slate-800 dark:via-slate-800 dark:to-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl border border-indigo-100 dark:border-slate-700">
+            <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-1 sm:mb-2">
               Spending by Category
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Click any segment to view items</p>
-            <ResponsiveContainer width="100%" height={500}>
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">Click any segment to view items</p>
+            <ResponsiveContainer width="100%" height={400} className="sm:hidden">
+              <PieChart>
+                <Pie
+                  data={categoryData}
+                  dataKey="total_amount"
+                  nameKey="category_name"
+                  cx="50%"
+                  cy="45%"
+                  outerRadius={80}
+                  innerRadius={50}
+                  label={false}
+                  onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
+                  style={{ cursor: 'pointer' }}
+                  paddingAngle={3}
+                  activeShape={{
+                    outerRadius: 85,
+                    stroke: '#fff',
+                    strokeWidth: 2
+                  }}
+                >
+                  {categoryData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.category_color}
+                      style={{
+                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+                      }}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: number, name: string, props: any) => [
+                    `€${value.toFixed(2)} (${props.payload.percentage.toFixed(1)}%)`,
+                    props.payload.category_name
+                  ]}
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+                    padding: '12px 16px',
+                  }}
+                  itemStyle={{
+                    color: '#fff',
+                    fontWeight: '600'
+                  }}
+                />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{
+                    paddingTop: '10px',
+                    fontSize: '11px',
+                    fontWeight: '500'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={500} className="hidden sm:block">
               <PieChart>
                 <Pie
                   data={categoryData}
@@ -274,12 +335,59 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
           </div>
 
           {/* Bar Chart */}
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg">
-            <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-6">
+          <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg">
+            <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4 sm:mb-6">
               Amount by Category
-              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
+              <span className="hidden sm:inline text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(Click to view items)</span>
             </h3>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300} className="sm:hidden">
+              <BarChart data={categoryData} onClick={(data) => {
+                if (data && data.activePayload && data.activePayload[0]) {
+                  const payload = data.activePayload[0].payload;
+                  setSelectedCategory({ id: payload.category_id, name: payload.category_name, color: payload.category_color });
+                }
+              }}>
+                <defs>
+                  <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.8}/>
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.3} />
+                <XAxis
+                  dataKey="category_name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={80}
+                  stroke="#64748b"
+                  style={{ fontSize: '10px' }}
+                  interval={0}
+                />
+                <YAxis
+                  stroke="#64748b"
+                  tickFormatter={(value) => `€${value}`}
+                  style={{ fontSize: '10px' }}
+                />
+                <Tooltip
+                  formatter={(value: number) => [`€${value.toFixed(2)}`, 'Spending']}
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    border: 'none',
+                    borderRadius: '12px',
+                    color: '#fff',
+                    boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+                  }}
+                  cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
+                />
+                <Bar
+                  dataKey="total_amount"
+                  fill="url(#colorBar)"
+                  radius={[8, 8, 0, 0]}
+                  style={{ cursor: 'pointer' }}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={350} className="hidden sm:block">
               <BarChart data={categoryData} onClick={(data) => {
                 if (data && data.activePayload && data.activePayload[0]) {
                   const payload = data.activePayload[0].payload;
