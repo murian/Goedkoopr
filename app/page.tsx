@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Receipt, TrendingUp, Sparkles, Download, Camera, X } from 'lucide-react';
+import { Receipt, TrendingUp, Sparkles, Download, Camera, X, ShoppingCart } from 'lucide-react';
 import ReceiptUpload from '@/components/ReceiptUpload';
 import SpendingChart from '@/components/SpendingChart';
 import ReceiptList from '@/components/ReceiptList';
