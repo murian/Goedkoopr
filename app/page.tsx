@@ -141,39 +141,46 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 pb-20 sm:pb-8 max-w-7xl">
+    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950 relative overflow-hidden">
+      {/* Ambient Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-400/30 dark:bg-purple-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-fuchsia-400/30 dark:bg-fuchsia-600/20 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-violet-400/20 dark:bg-violet-600/15 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 lg:py-8 pb-20 sm:pb-8 max-w-7xl relative z-10">
         {/* Header */}
-        <div className="mb-6 sm:mb-8 lg:mb-12">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4">
+        <div className="mb-8 sm:mb-10 lg:mb-14">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
             <div className="text-center md:text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-1 sm:mb-2">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 bg-clip-text text-transparent mb-2 sm:mb-3 tracking-tight">
                 Receipt Tracker
               </h1>
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300">
-                AI-powered expense tracking with smart insights
+              <p className="text-base sm:text-lg lg:text-xl text-slate-700 dark:text-slate-300 font-medium">
+                AI-powered expense tracking with smart insights ✨
               </p>
             </div>
             {/* Quick Upload Button in Header - Hidden on mobile, use FAB instead */}
             <button
               onClick={() => setShowUploadModal(true)}
-              className="hidden md:flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+              className="hidden md:flex items-center gap-3 px-7 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-purple-700 text-white rounded-2xl shadow-xl shadow-purple-500/25 hover:shadow-2xl hover:shadow-purple-500/40 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 font-bold"
             >
               <Camera className="w-5 h-5" />
-              <span className="font-semibold">Scan Receipt</span>
+              <span>Scan Receipt</span>
             </button>
           </div>
         </div>
 
-        {/* Month Selector */}
-        <div className="mb-4 sm:mb-6 flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg">
-          <label className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300">
-            View Period:
+        {/* Month Selector - Glassmorphism */}
+        <div className="mb-6 sm:mb-8 flex items-center gap-3 sm:gap-4 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-5 shadow-xl shadow-purple-500/10 border border-white/20 dark:border-white/10">
+          <label className="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">
+            📅 View Period:
           </label>
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all outline-none text-sm sm:text-base font-medium cursor-pointer"
+            className="flex-1 px-4 sm:px-5 py-3 rounded-xl sm:rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-2 border-purple-200 dark:border-purple-800 text-slate-900 dark:text-white focus:border-purple-500 dark:focus:border-purple-400 focus:ring-4 focus:ring-purple-200 dark:focus:ring-purple-800/50 transition-all outline-none text-sm sm:text-base font-semibold cursor-pointer hover:border-purple-400 dark:hover:border-purple-600"
           >
             <option value="">Current Month</option>
             <option value="all-time">All Time Overview</option>
@@ -186,86 +193,87 @@ export default function Home() {
           </select>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+        {/* Stats Cards - Bento Grid with Glassmorphism */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6 mb-8 sm:mb-10">
           {/* This Month */}
-          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16" />
-            <div className="relative p-3 sm:p-4 lg:p-6">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">{getMonthLabel()}</p>
-                <div className="p-2 sm:p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl">
+          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-xl shadow-violet-500/10 border border-white/20 dark:border-white/10 hover:shadow-2xl hover:shadow-violet-500/20 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2">
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-gradient-to-br from-violet-400/30 to-purple-400/30 rounded-full -mr-12 -mt-12 sm:-mr-20 sm:-mt-20 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+            <div className="relative p-4 sm:p-5 lg:p-7">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">{getMonthLabel()}</p>
+                <div className="p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl sm:rounded-2xl shadow-lg shadow-violet-500/50 group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 €{stats.thisMonth.toFixed(2)}
               </p>
             </div>
           </div>
 
           {/* Receipts */}
-          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-emerald-400/20 to-teal-400/20 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16" />
-            <div className="relative p-3 sm:p-4 lg:p-6">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Receipts</p>
-                <div className="p-2 sm:p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg sm:rounded-xl">
+          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-xl shadow-emerald-500/10 border border-white/20 dark:border-white/10 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2">
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-gradient-to-br from-emerald-400/30 to-teal-400/30 rounded-full -mr-12 -mt-12 sm:-mr-20 sm:-mt-20 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+            <div className="relative p-4 sm:p-5 lg:p-7">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Receipts</p>
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl sm:rounded-2xl shadow-lg shadow-emerald-500/50 group-hover:scale-110 transition-transform duration-300">
                   <Receipt className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 {stats.receiptCount}
               </p>
             </div>
           </div>
 
           {/* Average */}
-          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-violet-400/20 to-purple-400/20 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16" />
-            <div className="relative p-3 sm:p-4 lg:p-6">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">Average</p>
-                <div className="p-2 sm:p-3 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg sm:rounded-xl">
+          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl shadow-xl shadow-fuchsia-500/10 border border-white/20 dark:border-white/10 hover:shadow-2xl hover:shadow-fuchsia-500/20 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2">
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-gradient-to-br from-fuchsia-400/30 to-pink-400/30 rounded-full -mr-12 -mt-12 sm:-mr-20 sm:-mt-20 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+            <div className="relative p-4 sm:p-5 lg:p-7">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Average</p>
+                <div className="p-3 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-xl sm:rounded-2xl shadow-lg shadow-fuchsia-500/50 group-hover:scale-110 transition-transform duration-300">
                   <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                 €{stats.averageSpent.toFixed(2)}
               </p>
             </div>
           </div>
 
-          {/* Total Savings */}
-          <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 col-span-2 lg:col-span-1">
-            <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-white/10 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16" />
-            <div className="relative p-3 sm:p-4 lg:p-6">
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <p className="text-xs sm:text-sm font-medium text-white/90">Total Savings</p>
-                <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-sm">
+          {/* Total Savings - Hero Card */}
+          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 shadow-2xl shadow-emerald-500/30 border border-emerald-400/20 hover:shadow-3xl hover:shadow-emerald-500/40 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 col-span-2 lg:col-span-1">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-white/20 rounded-full -mr-12 -mt-12 sm:-mr-20 sm:-mt-20 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+            <div className="relative p-4 sm:p-5 lg:p-7">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm font-bold text-white/95 uppercase tracking-wide">Total Savings</p>
+                <div className="p-3 bg-white/25 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+              <p className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight drop-shadow-lg">
                 €{stats.totalSavings.toFixed(2)}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg mb-4 sm:mb-6 overflow-hidden">
-          <div className="flex overflow-x-auto border-b border-slate-200 dark:border-slate-700 scrollbar-hide">
+        {/* Tabs - Glassmorphism */}
+        <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl shadow-purple-500/10 border border-white/20 dark:border-white/10 mb-6 sm:mb-8 overflow-hidden">
+          <div className="flex overflow-x-auto scrollbar-hide p-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 font-medium whitespace-nowrap transition-all duration-200 text-sm sm:text-base ${
+                  className={`flex items-center gap-2 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 font-bold whitespace-nowrap transition-all duration-300 text-sm sm:text-base rounded-xl sm:rounded-2xl ${
                     activeTab === tab.id
-                      ? 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                      ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 text-white shadow-lg shadow-purple-500/50 scale-105'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50 hover:scale-105'
                   }`}
                 >
                   <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -277,12 +285,12 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Tab Content */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+        {/* Tab Content - Glassmorphism */}
+        <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl shadow-purple-500/10 border border-white/20 dark:border-white/10 p-5 sm:p-7 lg:p-10">
           {activeTab === 'dashboard' && (
-            <div className="space-y-4 sm:space-y-6">
-              <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">
-                Spending Analytics
+            <div className="space-y-6 sm:space-y-8">
+              <h2 className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 bg-clip-text text-transparent mb-4 sm:mb-6 tracking-tight">
+                📊 Spending Analytics
               </h2>
               <SpendingChart onRefresh={fetchStats} selectedMonth={selectedMonth} />
             </div>
@@ -295,15 +303,16 @@ export default function Home() {
           {activeTab === 'export' && <ExportData />}
         </div>
 
-        {/* Floating Action Button */}
+        {/* Floating Action Button - Modern Design */}
         <button
           onClick={() => setShowUploadModal(true)}
-          className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 w-14 h-14 sm:w-16 sm:h-16 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-200 transform hover:scale-110 z-50 flex items-center justify-center group"
+          className="fixed bottom-5 right-5 sm:bottom-8 sm:right-8 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-purple-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-purple-500/50 hover:shadow-3xl hover:shadow-purple-500/60 transition-all duration-500 transform hover:scale-110 hover:rotate-12 z-50 flex items-center justify-center group backdrop-blur-sm border-4 border-white/20"
           aria-label="Scan receipt"
         >
-          <Camera className="w-6 h-6 sm:w-7 sm:h-7 group-hover:scale-110 transition-transform" />
-          <span className="hidden md:block absolute right-full mr-3 px-3 py-1 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            Scan Receipt
+          <Camera className="w-7 h-7 sm:w-9 sm:h-9 group-hover:scale-110 transition-transform drop-shadow-lg" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
+          <span className="hidden lg:block absolute right-full mr-4 px-5 py-3 bg-slate-900/90 backdrop-blur-sm text-white text-sm font-bold rounded-2xl opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap shadow-xl transform -translate-x-2 group-hover:translate-x-0">
+            📸 Scan Receipt
           </span>
         </button>
 
