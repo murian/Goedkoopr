@@ -61,7 +61,53 @@ JSON FORMAT:
       "total_price": 0.00,
       "original_price": 0.00,
       "discount_amount": 0.00,
-      "suggested_category": "Category name - choose the MOST SPECIFIC category from: Fruits & Vegetables, Meat & Fish, Dairy & Eggs, Bakery & Bread, Beverages, Coffee & Tea, Alcohol & Wine, Snacks & Sweets, Frozen Foods, Pantry & Canned, Condiments & Sauces, Deli & Prepared Foods, Household & Cleaning, Personal Care & Health, Baby Products, Pet Supplies"
+      "suggested_category": "Category name - choose the MOST SPECIFIC and ACCURATE category from the list below. READ THE FULL PRODUCT NAME CAREFULLY before categorizing:
+
+      CATEGORY GUIDELINES (with common examples):
+
+      🥬 Fruits & Vegetables: Fresh/frozen fruits, vegetables, salads, leafy greens, potatoes, onions, tomatoes, lettuce, herbs
+
+      🥩 Meat & Fish: Chicken, beef, pork, lamb, fish, seafood, sausages, bacon, deli meats (ham, salami, turkey slices)
+
+      🥛 Dairy & Eggs: Milk, cheese, yogurt, butter, cream, eggs, ice cream, sour cream, cottage cheese
+
+      🍞 Bakery & Bread: Bread, rolls, bagels, croissants, muffins, tortillas, pita, naan, baguettes
+
+      🥤 Beverages: Water, soda, juice, sports drinks, energy drinks (but NOT coffee, tea, or alcohol)
+
+      ☕ Coffee & Tea: Coffee beans/grounds, instant coffee, tea bags, hot chocolate, chai, matcha
+
+      🍺 Alcohol & Wine: Beer, wine, spirits, liquor, cocktails, sake, cider
+
+      🍪 Snacks & Sweets: Chips, cookies, candy, chocolate, gum, crackers, popcorn, nuts, trail mix
+
+      🧊 Frozen Foods: Ice cream, frozen pizza, frozen meals, frozen vegetables, frozen fruits, popsicles
+
+      🥫 Pantry & Canned: Rice, pasta, canned goods, beans, flour, sugar, cereal, oats, grains, dry goods
+
+      🧂 Condiments & Sauces: Ketchup, mayo, mustard, soy sauce, oil, vinegar, spices, salt, pepper, hot sauce, salad dressing
+
+      🍗 Deli & Prepared Foods: Rotisserie chicken, pre-made salads, sandwiches, sushi, ready-to-eat meals
+
+      🧹 Household & Cleaning: Soap, detergent, paper towels, toilet paper, trash bags, cleaning supplies, dish soap, sponges
+
+      💊 Personal Care & Health: Shampoo, toothpaste, deodorant, medicine, vitamins, bandages, lotion, razors, cosmetics
+
+      👶 Baby Products: Diapers, baby food, baby wipes, formula, baby lotion
+
+      🐾 Pet Supplies: Dog/cat food, pet treats, litter, pet toys
+
+      IMPORTANT CATEGORIZATION RULES:
+      - READ the full product name - don't just look at the first word
+      - Ice cream goes to 'Dairy & Eggs' (NOT Frozen Foods)
+      - Frozen pizza/meals go to 'Frozen Foods' (NOT Pantry)
+      - Deli meats (sliced ham, turkey, salami) go to 'Meat & Fish' (NOT Deli & Prepared Foods)
+      - Cheese goes to 'Dairy & Eggs' (even if it's deli cheese)
+      - Rotisserie/prepared chicken goes to 'Deli & Prepared Foods'
+      - Nuts and trail mix go to 'Snacks & Sweets' (NOT Pantry)
+      - Cooking oil goes to 'Condiments & Sauces' (NOT Pantry)
+      - Paper products go to 'Household & Cleaning'
+      - If unsure between categories, choose the most common usage"
     }
   ]
 }
@@ -74,24 +120,10 @@ Important Rules:
 - If no discount: original_price = 0, discount_amount = 0
 - total_price is the final price paid (after discount)
 - discount_amount at receipt level is the total discounts/savings shown on the receipt
-- **IMPORTANT**: Choose the MOST SPECIFIC category for each item. AVOID generic categorization. Examples:
-  - Fresh/frozen fruits, vegetables, salad → "Fruits & Vegetables"
-  - Chicken, beef, pork, fish, seafood → "Meat & Fish"
-  - Milk, cheese, yogurt, butter, eggs, cream → "Dairy & Eggs"
-  - Bread, croissants, muffins, bagels, tortillas → "Bakery & Bread"
-  - Water, soda, juice (non-coffee/tea) → "Beverages"
-  - Coffee, tea, hot chocolate → "Coffee & Tea"
-  - Beer, wine, spirits, liquor → "Alcohol & Wine"
-  - Chips, cookies, candy, chocolate, gum → "Snacks & Sweets"
-  - Ice cream, frozen pizza, frozen meals, frozen vegetables → "Frozen Foods"
-  - Rice, pasta, canned goods, beans, flour, sugar, cereal → "Pantry & Canned"
-  - Ketchup, mayo, mustard, soy sauce, oil, vinegar, spices → "Condiments & Sauces"
-  - Rotisserie chicken, pre-made salads, deli meats, sandwiches → "Deli & Prepared Foods"
-  - Soap, detergent, paper towels, trash bags, cleaning supplies → "Household & Cleaning"
-  - Shampoo, toothpaste, deodorant, medicine, vitamins, bandages → "Personal Care & Health"
-  - Diapers, baby food, baby wipes, formula → "Baby Products"
-  - Dog/cat food, pet treats, litter → "Pet Supplies"
-- Every item MUST fit into one of these categories - be creative with categorization
+- **CRITICAL**: Follow the detailed category guidelines provided above exactly
+- Every item MUST fit into one of the 16 categories
+- Be precise - read the full product name before categorizing
+- When in doubt, choose the category that best matches the item's primary use
 - Use the exact total and tax amounts shown on the receipt
 - If currency is not specified, assume EUR
 - Return ONLY valid JSON, no additional text`;

@@ -22,6 +22,7 @@ export async function GET(
     const items = db.prepare(`
       SELECT
         ri.id,
+        ri.product_id,
         ri.product_name,
         ri.quantity,
         ri.unit_price,
@@ -31,11 +32,15 @@ export async function GET(
         ri.created_at,
         r.receipt_date,
         r.id as receipt_id,
-        s.name as store_name
+        s.name as store_name,
+        p.category_id,
+        c.name as category_name,
+        c.color as category_color
       FROM receipt_items ri
       INNER JOIN receipts r ON ri.receipt_id = r.id
       INNER JOIN products p ON ri.product_id = p.id
       LEFT JOIN stores s ON r.store_id = s.id
+      LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.category_id = ?
       ORDER BY r.receipt_date DESC, ri.created_at DESC
     `).all(categoryId);
