@@ -396,22 +396,22 @@ export default function Home() {
 
         {/* Tabs - Glassmorphism */}
         <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-xl shadow-purple-500/10 border border-white/20 dark:border-white/10 mb-6 sm:mb-8 overflow-hidden">
-          <div className="flex overflow-x-auto scrollbar-hide p-2">
+          <div className="flex overflow-x-auto scrollbar-hide p-2 sm:p-3 gap-2 sm:gap-3">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 font-bold whitespace-nowrap transition-all duration-300 text-sm sm:text-base rounded-xl sm:rounded-2xl ${
+                  className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 lg:px-8 py-2.5 sm:py-4 font-bold whitespace-nowrap transition-all duration-300 text-xs sm:text-base rounded-xl sm:rounded-2xl flex-shrink-0 ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 text-white shadow-lg shadow-purple-500/50 scale-105'
                       : 'text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50 hover:scale-105'
                   }`}
                 >
-                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Icon className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                   <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.label === 'Analytics' ? 'Stats' : tab.label}</span>
+                  <span className="sm:hidden text-xs">{tab.label === 'Analytics' ? 'Stats' : tab.label}</span>
                 </button>
               );
             })}
