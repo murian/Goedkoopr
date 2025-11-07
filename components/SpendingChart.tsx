@@ -191,14 +191,14 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   nameKey="category_name"
                   cx="50%"
                   cy="40%"
-                  outerRadius={70}
-                  innerRadius={45}
+                  outerRadius={85}
+                  innerRadius={55}
                   label={false}
                   onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 75,
+                    outerRadius: 90,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -255,8 +255,8 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   nameKey="category_name"
                   cx="50%"
                   cy="42%"
-                  outerRadius={90}
-                  innerRadius={55}
+                  outerRadius={105}
+                  innerRadius={65}
                   label={({category_name, percentage, cx, cy, midAngle, innerRadius, outerRadius}) => {
                     const RADIAN = Math.PI / 180;
                     const radius = outerRadius + 25;
@@ -280,7 +280,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 95,
+                    outerRadius: 110,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -355,7 +355,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   dataKey="category_name"
                   angle={-45}
                   textAnchor="end"
-                  height={80}
+                  height={100}
                   stroke="#64748b"
                   style={{ fontSize: '10px' }}
                   interval={0}
@@ -402,7 +402,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   dataKey="category_name"
                   angle={-45}
                   textAnchor="end"
-                  height={100}
+                  height={120}
                   stroke="#64748b"
                   style={{ fontSize: '12px' }}
                 />
