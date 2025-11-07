@@ -183,14 +183,14 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
               Spending by Category
             </h3>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">Click any segment to view items</p>
-            <ResponsiveContainer width="100%" height={420} className="sm:hidden">
+            <ResponsiveContainer width="100%" height={380} className="sm:hidden">
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="35%"
+                  cy="40%"
                   outerRadius={70}
                   innerRadius={45}
                   label={false}
@@ -233,30 +233,30 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={150}
+                  height={130}
                   iconType="circle"
                   iconSize={8}
                   wrapperStyle={{
-                    paddingTop: '10px',
+                    paddingTop: '5px',
                     fontSize: '11px',
                     fontWeight: '500',
-                    lineHeight: '1.5',
-                    maxHeight: '150px',
+                    lineHeight: '1.4',
+                    maxHeight: '130px',
                     overflowY: 'auto'
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
-            <ResponsiveContainer width="100%" height={480} className="hidden sm:block">
+            <ResponsiveContainer width="100%" height={440} className="hidden sm:block">
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="38%"
-                  outerRadius={95}
-                  innerRadius={58}
+                  cy="42%"
+                  outerRadius={90}
+                  innerRadius={55}
                   label={({category_name, percentage, cx, cy, midAngle, innerRadius, outerRadius}) => {
                     const RADIAN = Math.PI / 180;
                     const radius = outerRadius + 25;
@@ -280,7 +280,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 100,
+                    outerRadius: 95,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -315,15 +315,15 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={140}
+                  height={120}
                   iconType="circle"
                   iconSize={10}
                   wrapperStyle={{
-                    paddingTop: '15px',
+                    paddingTop: '8px',
                     fontSize: '13px',
                     fontWeight: '500',
-                    lineHeight: '1.6',
-                    maxHeight: '140px',
+                    lineHeight: '1.5',
+                    maxHeight: '120px',
                     overflowY: 'auto'
                   }}
                 />
