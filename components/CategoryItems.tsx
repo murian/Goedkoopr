@@ -44,6 +44,13 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
   useEffect(() => {
     fetchCategoryItems();
     fetchCategories();
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
   }, [categoryId]);
 
   const fetchCategoryItems = async () => {
@@ -100,10 +107,16 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fadeIn overflow-hidden">
-      <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-4xl h-[85vh] sm:h-auto sm:max-h-[90vh] shadow-2xl animate-slideUp flex flex-col">
-        {/* Header */}
-        <div className="flex-shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 z-10">
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 animate-fadeIn"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-4xl shadow-2xl animate-slideUp flex flex-col max-h-[90vh] sm:max-h-[85vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 rounded-t-3xl sm:rounded-t-2xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <div
@@ -126,7 +139,7 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
           </div>
         </div>
 
-        {/* Total Spent */}
+        {/* Total Spent - Fixed */}
         <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-b border-slate-200 dark:border-slate-700">
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Total Spent</p>
           <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -134,8 +147,8 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
           </p>
         </div>
 
-        {/* Items List */}
-        <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-4 min-h-0">
+        {/* Items List - Scrollable */}
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-6 py-3 sm:py-4 min-h-0" style={{ WebkitOverflowScrolling: 'touch' }}>
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -148,7 +161,7 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
               </p>
             </div>
           ) : (
-            <div className="space-y-2 sm:space-y-3 pb-32 sm:pb-8">
+            <div className="space-y-2 sm:space-y-3 pb-6">
               {items.map((item) => (
                 <div
                   key={item.id}
