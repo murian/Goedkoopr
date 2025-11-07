@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
   BarChart,
   Bar,
@@ -18,8 +19,10 @@ import {
 } from 'recharts';
 import { SpendingByCategory, SpendingOverTime } from '@/lib/types';
 import CategoryItems from './CategoryItems';
-import StoreMap from './StoreMap';
 import PriceComparison from './PriceComparison';
+
+// Dynamically import StoreMap to avoid SSR issues with Leaflet
+const StoreMap = dynamic(() => import('./StoreMap'), { ssr: false });
 
 interface SpendingChartProps {
   onRefresh?: () => void;
