@@ -100,10 +100,10 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fadeIn">
-      <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl animate-slideUp flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fadeIn overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-4xl h-[92vh] sm:h-auto sm:max-h-[90vh] shadow-2xl animate-slideUp flex flex-col">
         {/* Header */}
-        <div className="flex-shrink-0 sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 z-10">
+        <div className="flex-shrink-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <div
@@ -135,7 +135,7 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
         </div>
 
         {/* Items List */}
-        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 sm:px-6 py-3 sm:py-4 min-h-0">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -148,7 +148,7 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
               </p>
             </div>
           ) : (
-            <div className="space-y-2 sm:space-y-3 pb-4">
+            <div className="space-y-2 sm:space-y-3 pb-20 sm:pb-8">
               {items.map((item) => (
                 <div
                   key={item.id}
