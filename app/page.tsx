@@ -12,6 +12,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // Empty means current month
+  const [availableMonths, setAvailableMonths] = useState<{ value: string; label: string }[]>([]);
   const [stats, setStats] = useState({
     totalSpent: 0,
     receiptCount: 0,
@@ -21,8 +22,23 @@ export default function Home() {
   });
 
   useEffect(() => {
+    fetchAvailableMonths();
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
     fetchStats();
   }, [selectedMonth]);
+
+  const fetchAvailableMonths = async () => {
+    try {
+      const response = await fetch('/api/receipts/months');
+      const data = await response.json();
+      setAvailableMonths(data.months || []);
+    } catch (error) {
+      console.error('Failed to fetch available months:', error);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -99,6 +115,7 @@ export default function Home() {
   };
 
   const handleUploadSuccess = () => {
+    fetchAvailableMonths(); // Refresh available months
     fetchStats();
     setShowUploadModal(false);
   };
@@ -149,20 +166,18 @@ export default function Home() {
           <label className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300">
             View Period:
           </label>
-          <input
-            type="month"
+          <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
-            className="flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all outline-none text-sm sm:text-base font-medium"
-          />
-          {selectedMonth && (
-            <button
-              onClick={() => setSelectedMonth('')}
-              className="px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
-            >
-              Current Month
-            </button>
-          )}
+            className="flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all outline-none text-sm sm:text-base font-medium cursor-pointer"
+          >
+            <option value="">Current Month</option>
+            {availableMonths.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Stats Cards */}
