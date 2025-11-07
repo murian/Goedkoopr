@@ -282,14 +282,6 @@ export default function Home() {
                 AI-powered expense tracking with smart insights ✨
               </p>
             </div>
-            {/* Quick Upload Button in Header - Hidden on mobile, use FAB instead */}
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="hidden md:flex items-center gap-3 px-7 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-purple-600 hover:from-violet-700 hover:via-fuchsia-700 hover:to-purple-700 text-white rounded-2xl shadow-xl shadow-purple-500/25 hover:shadow-2xl hover:shadow-purple-500/40 transition-all duration-300 transform hover:scale-105 hover:-translate-y-1 font-bold"
-            >
-              <Camera className="w-5 h-5" />
-              <span>Scan Receipt</span>
-            </button>
           </div>
         </div>
 
@@ -385,7 +377,7 @@ export default function Home() {
           </div>
 
           {/* Total Savings - Hero Card */}
-          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 shadow-2xl shadow-emerald-500/30 border border-emerald-400/20 hover:shadow-3xl hover:shadow-emerald-500/40 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 col-span-2 lg:col-span-1">
+          <div className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 shadow-2xl shadow-emerald-500/30 border border-emerald-400/20 hover:shadow-3xl hover:shadow-emerald-500/40 transition-all duration-500 transform hover:scale-105 hover:-translate-y-2">
             <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-50"></div>
             <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 bg-white/20 rounded-full -mr-12 -mt-12 sm:-mr-20 sm:-mt-20 blur-2xl group-hover:blur-3xl transition-all duration-500" />
             <div className="relative p-4 sm:p-5 lg:p-7">
