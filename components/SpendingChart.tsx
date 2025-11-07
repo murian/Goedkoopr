@@ -45,35 +45,43 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
   const fetchData = async () => {
     setLoading(true);
     try {
-      let endDate = new Date();
-      let startDate = new Date();
+      let queryParams = '';
 
-      // If specific month is selected, use that month's range
-      if (selectedMonth) {
+      // Build query parameters based on selected month
+      if (selectedMonth === 'all-time') {
+        // No date filtering for all-time view
+        queryParams = '';
+      } else if (selectedMonth) {
+        // Specific month selected
         const [year, month] = selectedMonth.split('-');
-        startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-        endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+        queryParams = `startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
       } else {
+        // Use date range
+        const endDate = new Date();
+        const startDate = new Date();
         startDate.setDate(startDate.getDate() - parseInt(dateRange));
+        queryParams = `startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
       }
 
       // Fetch category spending
       const categoryResponse = await fetch(
-        `/api/analytics/spending?groupBy=category&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+        `/api/analytics/spending?groupBy=category${queryParams ? '&' + queryParams : ''}`
       );
       const categoryResult = await categoryResponse.json();
       setCategoryData(categoryResult);
 
       // Fetch time-based spending (daily)
       const timeResponse = await fetch(
-        `/api/analytics/spending?groupBy=time&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+        `/api/analytics/spending?groupBy=time${queryParams ? '&' + queryParams : ''}`
       );
       const timeResult = await timeResponse.json();
       setTimeData(timeResult);
 
       // Fetch month-based spending
       const monthResponse = await fetch(
-        `/api/analytics/spending?groupBy=month&startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`
+        `/api/analytics/spending?groupBy=month${queryParams ? '&' + queryParams : ''}`
       );
       const monthResult = await monthResponse.json();
       setMonthData(monthResult);

@@ -44,34 +44,35 @@ export default function Home() {
     try {
       const timestamp = new Date().getTime();
 
-      // Determine date range based on selectedMonth
-      let startDate: Date;
-      let endDate: Date;
+      let fetchUrl: string;
 
-      if (selectedMonth) {
+      if (selectedMonth === 'all-time') {
+        // Fetch all receipts for all-time view
+        fetchUrl = `/api/receipts?_t=${timestamp}`;
+      } else if (selectedMonth) {
         // Use selected month
         const [year, month] = selectedMonth.split('-');
-        startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
-        endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+        const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        const endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+        fetchUrl = `/api/receipts?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}&_t=${timestamp}`;
       } else {
         // Use current month
         const today = new Date();
-        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-        endDate = today;
+        const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        const endDate = today;
+        fetchUrl = `/api/receipts?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}&_t=${timestamp}`;
       }
 
       // Fetch receipts for the selected period
-      const monthResponse = await fetch(
-        `/api/receipts?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}&_t=${timestamp}`,
-        {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-        }
-      );
+      const monthResponse = await fetch(fetchUrl, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+
       if (!monthResponse.ok) {
-        throw new Error('Failed to fetch month receipts');
+        throw new Error('Failed to fetch receipts');
       }
       const monthReceipts = await monthResponse.json();
 
@@ -124,6 +125,9 @@ export default function Home() {
     if (!selectedMonth) {
       return 'This Month';
     }
+    if (selectedMonth === 'all-time') {
+      return 'All Time';
+    }
     const [year, month] = selectedMonth.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1);
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
@@ -172,6 +176,8 @@ export default function Home() {
             className="flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all outline-none text-sm sm:text-base font-medium cursor-pointer"
           >
             <option value="">Current Month</option>
+            <option value="all-time">All Time Overview</option>
+            {availableMonths.length > 0 && <option disabled>───────────</option>}
             {availableMonths.map((month) => (
               <option key={month.value} value={month.value}>
                 {month.label}
