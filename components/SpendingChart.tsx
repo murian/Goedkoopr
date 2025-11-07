@@ -183,22 +183,22 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
               Spending by Category
             </h3>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-6">Click any segment to view items</p>
-            <ResponsiveContainer width="100%" height={550} className="sm:hidden">
+            <ResponsiveContainer width="100%" height={420} className="sm:hidden">
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="32%"
-                  outerRadius={75}
-                  innerRadius={48}
+                  cy="35%"
+                  outerRadius={70}
+                  innerRadius={45}
                   label={false}
                   onClick={(data) => setSelectedCategory({ id: data.category_id, name: data.category_name, color: data.category_color })}
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 80,
+                    outerRadius: 75,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -233,30 +233,30 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={200}
+                  height={150}
                   iconType="circle"
                   iconSize={8}
                   wrapperStyle={{
-                    paddingTop: '15px',
+                    paddingTop: '10px',
                     fontSize: '11px',
                     fontWeight: '500',
-                    lineHeight: '1.6',
-                    maxHeight: '200px',
+                    lineHeight: '1.5',
+                    maxHeight: '150px',
                     overflowY: 'auto'
                   }}
                 />
               </PieChart>
             </ResponsiveContainer>
-            <ResponsiveContainer width="100%" height={600} className="hidden sm:block">
+            <ResponsiveContainer width="100%" height={480} className="hidden sm:block">
               <PieChart>
                 <Pie
                   data={categoryData}
                   dataKey="total_amount"
                   nameKey="category_name"
                   cx="50%"
-                  cy="35%"
-                  outerRadius={105}
-                  innerRadius={62}
+                  cy="38%"
+                  outerRadius={95}
+                  innerRadius={58}
                   label={({category_name, percentage, cx, cy, midAngle, innerRadius, outerRadius}) => {
                     const RADIAN = Math.PI / 180;
                     const radius = outerRadius + 25;
@@ -280,7 +280,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                   style={{ cursor: 'pointer' }}
                   paddingAngle={3}
                   activeShape={{
-                    outerRadius: 110,
+                    outerRadius: 100,
                     stroke: '#fff',
                     strokeWidth: 2
                   }}
@@ -315,15 +315,15 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={180}
+                  height={140}
                   iconType="circle"
                   iconSize={10}
                   wrapperStyle={{
-                    paddingTop: '25px',
+                    paddingTop: '15px',
                     fontSize: '13px',
                     fontWeight: '500',
-                    lineHeight: '1.8',
-                    maxHeight: '180px',
+                    lineHeight: '1.6',
+                    maxHeight: '140px',
                     overflowY: 'auto'
                   }}
                 />
