@@ -51,40 +51,42 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn">
-      <div className="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-slideUp">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 z-50 animate-fadeIn">
+      <div className="bg-white dark:bg-slate-800 rounded-t-3xl sm:rounded-2xl w-full sm:max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl animate-slideUp flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 flex items-center justify-between z-10">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: categoryColor }}
-            />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {categoryName}
-            </h2>
-            <span className="text-sm text-slate-500 dark:text-slate-400">
-              ({items.length} items)
-            </span>
+        <div className="flex-shrink-0 sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-4 sm:px-6 py-3 sm:py-4 z-10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <div
+                className="w-3 h-3 sm:w-4 sm:h-4 rounded-full flex-shrink-0"
+                style={{ backgroundColor: categoryColor }}
+              />
+              <h2 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white truncate">
+                {categoryName}
+              </h2>
+              <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                ({items.length})
+              </span>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors flex-shrink-0"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-slate-600 dark:text-slate-400" />
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-          >
-            <X className="w-6 h-6 text-slate-600 dark:text-slate-400" />
-          </button>
         </div>
 
         {/* Total Spent */}
-        <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-b border-slate-200 dark:border-slate-700">
-          <p className="text-sm text-slate-600 dark:text-slate-400">Total Spent in this Category</p>
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">
+        <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-b border-slate-200 dark:border-slate-700">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-medium">Total Spent</p>
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             €{totalSpent.toFixed(2)}
           </p>
         </div>
 
         {/* Items List */}
-        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+        <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4">
           {loading ? (
             <div className="flex items-center justify-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -97,38 +99,81 @@ export default function CategoryItems({ categoryId, categoryName, categoryColor,
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3 pb-4">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="bg-white dark:bg-slate-700/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-md transition-all duration-200"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-slate-900 dark:text-white text-lg">
+                  {/* Mobile Layout */}
+                  <div className="block sm:hidden">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-base leading-tight flex-1">
                         {item.product_name}
                       </h3>
-                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+                          €{item.total_price.toFixed(2)}
+                        </p>
+                        {item.original_price > 0 && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 line-through">
+                            €{item.original_price.toFixed(2)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400 mb-2">
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <Store className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="truncate">{item.store_name}</span>
+                      </div>
+                      <div className="flex items-center gap-1 whitespace-nowrap">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>{new Date(item.receipt_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
+                        <span className="font-medium">Qty: {item.quantity}</span>
+                        <span>€{item.unit_price.toFixed(2)} each</span>
+                      </div>
+                      {item.discount_amount > 0 && (
+                        <div className="text-green-600 dark:text-green-400 font-semibold">
+                          -€{item.discount_amount.toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden sm:flex items-start justify-between">
+                    <div className="flex-1 min-w-0 pr-4">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2">
+                        {item.product_name}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
                         <div className="flex items-center gap-1">
                           <Store className="w-4 h-4" />
-                          {item.store_name}
+                          <span>{item.store_name}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          {new Date(item.receipt_date).toLocaleDateString()}
+                          <span>{new Date(item.receipt_date).toLocaleDateString()}</span>
                         </div>
-                        <div>
+                        <div className="font-medium">
                           Qty: {item.quantity}
                         </div>
                       </div>
                       {item.discount_amount > 0 && (
-                        <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                        <div className="mt-2 text-sm text-green-600 dark:text-green-400 font-semibold">
                           Saved €{item.discount_amount.toFixed(2)}
                         </div>
                       )}
                     </div>
-                    <div className="text-right ml-4">
-                      <p className="text-2xl font-bold text-slate-900 dark:text-white">
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
                         €{item.total_price.toFixed(2)}
                       </p>
                       {item.original_price > 0 && (
