@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server';
-import Database from 'better-sqlite3';
-import path from 'path';
-
-const dbPath = path.join(process.cwd(), 'receipts.db');
+import db from '@/lib/database';
 
 export async function GET() {
   try {
-    const db = new Database(dbPath);
-
     // Get distinct year-month combinations from receipts
     const query = `
       SELECT DISTINCT
@@ -17,7 +12,6 @@ export async function GET() {
     `;
 
     const rows = db.prepare(query).all() as { month: string }[];
-    db.close();
 
     // Format the months nicely
     const months = rows.map(row => {
