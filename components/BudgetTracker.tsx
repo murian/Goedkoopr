@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AlertCircle, Plus, TrendingUp, TrendingDown } from 'lucide-react';
+import { AlertCircle, Plus, TrendingUp, TrendingDown, Edit, Trash2, X } from 'lucide-react';
 import { BudgetStatus, Category } from '@/lib/types';
 
 export default function BudgetTracker() {
@@ -9,6 +9,8 @@ export default function BudgetTracker() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingBudget, setEditingBudget] = useState<number | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     category_id: '',
     amount: '',
@@ -45,18 +47,30 @@ export default function BudgetTracker() {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/budgets', {
-        method: 'POST',
+      const url = '/api/budgets';
+      const method = editingBudget ? 'PUT' : 'POST';
+      const body = editingBudget
+        ? {
+            id: editingBudget,
+            ...formData,
+            category_id: formData.category_id || null,
+            amount: parseFloat(formData.amount),
+          }
+        : {
+            ...formData,
+            category_id: formData.category_id || null,
+            amount: parseFloat(formData.amount),
+          };
+
+      const response = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          category_id: formData.category_id || null,
-          amount: parseFloat(formData.amount),
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
         setShowForm(false);
+        setEditingBudget(null);
         setFormData({
           category_id: '',
           amount: '',
@@ -67,8 +81,48 @@ export default function BudgetTracker() {
         fetchData();
       }
     } catch (error) {
-      console.error('Failed to create budget:', error);
+      console.error('Failed to save budget:', error);
     }
+  };
+
+  const handleEdit = (budgetStatus: BudgetStatus) => {
+    const budget = budgetStatus.budget;
+    setEditingBudget(budget.id);
+    setFormData({
+      category_id: budget.category_id?.toString() || '',
+      amount: budget.amount.toString(),
+      period: budget.period,
+      currency: budget.currency,
+      start_date: budget.start_date,
+    });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (budgetId: number) => {
+    try {
+      const response = await fetch(`/api/budgets?id=${budgetId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setDeleteConfirm(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Failed to delete budget:', error);
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingBudget(null);
+    setFormData({
+      category_id: '',
+      amount: '',
+      period: 'monthly',
+      currency: 'EUR',
+      start_date: new Date().toISOString().split('T')[0],
+    });
   };
 
   if (loading) {
@@ -94,11 +148,11 @@ export default function BudgetTracker() {
         </button>
       </div>
 
-      {/* Create Budget Form */}
+      {/* Create/Edit Budget Form */}
       {showForm && (
         <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Create New Budget
+            {editingBudget ? 'Edit Budget' : 'Create New Budget'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
@@ -178,11 +232,11 @@ export default function BudgetTracker() {
                 type="submit"
                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
               >
-                Create Budget
+                {editingBudget ? 'Update Budget' : 'Create Budget'}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={handleCancelForm}
                 className="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors"
               >
                 Cancel
@@ -218,20 +272,36 @@ export default function BudgetTracker() {
                 }`}
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {budget.category_name || 'All Categories'} - {budget.period}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       {new Date(budget.start_date).toLocaleDateString()} -{' '}
-                      {new Date(budget.end_date).toLocaleDateString()}
+                      {budget.end_date ? new Date(budget.end_date).toLocaleDateString() : 'Ongoing'}
                     </p>
                   </div>
-                  {isExceeded ? (
-                    <TrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
-                  ) : (
-                    <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
-                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEdit(budgetStatus)}
+                      className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                      title="Edit budget"
+                    >
+                      <Edit className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(budget.id)}
+                      className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                      title="Delete budget"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </button>
+                    {isExceeded ? (
+                      <TrendingDown className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    ) : (
+                      <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -283,6 +353,42 @@ export default function BudgetTracker() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  Delete Budget
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Are you sure you want to delete this budget? This action cannot be undone.
+                </p>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => setDeleteConfirm(null)}
+                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleDelete(deleteConfirm)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors inline-flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

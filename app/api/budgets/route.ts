@@ -101,6 +101,96 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// PUT - Update budget
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id, category_id, amount, period, currency, start_date } = body;
+
+    if (!id || !amount || !period || !start_date) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate end_date based on period
+    const startDate = new Date(start_date);
+    let endDate = new Date(startDate);
+
+    switch (period) {
+      case 'daily':
+        endDate.setDate(endDate.getDate() + 1);
+        break;
+      case 'weekly':
+        endDate.setDate(endDate.getDate() + 7);
+        break;
+      case 'monthly':
+        endDate.setMonth(endDate.getMonth() + 1);
+        break;
+      case 'yearly':
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        break;
+    }
+
+    const updateBudget = db.prepare(`
+      UPDATE budgets
+      SET category_id = ?, amount = ?, period = ?, currency = ?, start_date = ?, end_date = ?
+      WHERE id = ?
+    `);
+
+    updateBudget.run(
+      category_id || null,
+      amount,
+      period,
+      currency || 'EUR',
+      start_date,
+      endDate.toISOString().split('T')[0],
+      id
+    );
+
+    const budget = db.prepare('SELECT * FROM budgets WHERE id = ?').get(id);
+
+    return NextResponse.json(budget);
+  } catch (error: any) {
+    console.error('Error updating budget:', error);
+    return NextResponse.json(
+      { error: 'Failed to update budget' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - Remove budget
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Budget ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Soft delete by setting active = 0
+    const deleteBudget = db.prepare(`
+      UPDATE budgets SET active = 0 WHERE id = ?
+    `);
+
+    deleteBudget.run(id);
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Error deleting budget:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete budget' },
+      { status: 500 }
+    );
+  }
+}
+
 // Helper function to calculate spent amount for a budget
 function calculateSpentAmount(budget: any): number {
   let query = `
