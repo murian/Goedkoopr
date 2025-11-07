@@ -26,16 +26,16 @@ const StoreMap = dynamic(() => import('./StoreMap'), { ssr: false });
 
 interface SpendingChartProps {
   onRefresh?: () => void;
+  selectedMonth?: string;
 }
 
-export default function SpendingChart({ onRefresh }: SpendingChartProps) {
+export default function SpendingChart({ onRefresh, selectedMonth = '' }: SpendingChartProps) {
   const [categoryData, setCategoryData] = useState<SpendingByCategory[]>([]);
   const [timeData, setTimeData] = useState<SpendingOverTime[]>([]);
   const [monthData, setMonthData] = useState<SpendingOverTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState<'category' | 'time' | 'month' | 'locations' | 'prices'>('category');
   const [dateRange, setDateRange] = useState('30'); // days
-  const [selectedMonth, setSelectedMonth] = useState<string>(''); // for month filter
   const [selectedCategory, setSelectedCategory] = useState<{id: number, name: string, color: string} | null>(null);
 
   useEffect(() => {
@@ -149,29 +149,9 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
           </button>
         </div>
 
-        <div className="flex gap-2">
-          {/* Month Selector */}
-          <input
-            type="month"
-            value={selectedMonth}
-            onChange={(e) => {
-              setSelectedMonth(e.target.value);
-              setDateRange('30'); // Reset date range when month is selected
-            }}
-            className="px-4 py-2 rounded-xl bg-white dark:bg-slate-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-slate-600 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            placeholder="Select month"
-          />
-
-          {selectedMonth && (
-            <button
-              onClick={() => setSelectedMonth('')}
-              className="px-4 py-2 rounded-xl bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/50 font-medium transition-colors"
-            >
-              Clear
-            </button>
-          )}
-
-          {!selectedMonth && (
+        {!selectedMonth && (
+          <div className="flex gap-2">
+            {/* Date Range Selector - only shown when no specific month is selected */}
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
@@ -182,8 +162,8 @@ export default function SpendingChart({ onRefresh }: SpendingChartProps) {
               <option value="90">Last 90 days</option>
               <option value="365">Last year</option>
             </select>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Charts */}

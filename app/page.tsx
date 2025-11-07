@@ -11,6 +11,7 @@ import ExportData from '@/components/ExportData';
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<string>(''); // Empty means current month
   const [stats, setStats] = useState({
     totalSpent: 0,
     receiptCount: 0,
@@ -21,37 +22,31 @@ export default function Home() {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [selectedMonth]);
 
   const fetchStats = async () => {
     try {
-      const today = new Date();
-      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-
-      // Fetch ALL receipts for total count and total savings (with cache busting)
       const timestamp = new Date().getTime();
-      const allReceiptsResponse = await fetch(`/api/receipts?_t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      });
-      if (!allReceiptsResponse.ok) {
-        throw new Error('Failed to fetch all receipts');
+
+      // Determine date range based on selectedMonth
+      let startDate: Date;
+      let endDate: Date;
+
+      if (selectedMonth) {
+        // Use selected month
+        const [year, month] = selectedMonth.split('-');
+        startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+        endDate = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+      } else {
+        // Use current month
+        const today = new Date();
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        endDate = today;
       }
-      const allReceipts = await allReceiptsResponse.json();
 
-      console.log('Fetched receipts from API:', allReceipts.length, 'receipts');
-      console.log('Receipt details:', allReceipts.map((r: any) => ({
-        id: r.id,
-        date: r.receipt_date,
-        amount: r.total_amount,
-        discount: r.discount_amount,
-      })));
-
-      // Fetch current month receipts for "This Month" spending
+      // Fetch receipts for the selected period
       const monthResponse = await fetch(
-        `/api/receipts?startDate=${firstDay.toISOString().split('T')[0]}&_t=${timestamp}`,
+        `/api/receipts?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}&_t=${timestamp}`,
         {
           cache: 'no-store',
           headers: {
@@ -64,30 +59,30 @@ export default function Home() {
       }
       const monthReceipts = await monthResponse.json();
 
-      // Calculate totals from ALL receipts
-      const totalSpent = allReceipts.reduce((sum: number, r: any) => {
+      console.log('Fetched receipts from API:', monthReceipts.length, 'receipts for period');
+      console.log('Receipt details:', monthReceipts.map((r: any) => ({
+        id: r.id,
+        date: r.receipt_date,
+        amount: r.total_amount,
+        discount: r.discount_amount,
+      })));
+
+      // Calculate stats from filtered receipts
+      const totalSpent = monthReceipts.reduce((sum: number, r: any) => {
         const amount = Number(r.total_amount) || 0;
         return sum + amount;
       }, 0);
 
-      const totalSavings = allReceipts.reduce((sum: number, r: any) => {
+      const totalSavings = monthReceipts.reduce((sum: number, r: any) => {
         const discount = Number(r.discount_amount) || 0;
         return sum + discount;
       }, 0);
 
-      const receiptCount = allReceipts.length;
-
-      // Calculate this month's spending
-      const thisMonthSpent = monthReceipts.reduce((sum: number, r: any) => {
-        const amount = Number(r.total_amount) || 0;
-        return sum + amount;
-      }, 0);
+      const receiptCount = monthReceipts.length;
 
       console.log('Stats calculated:', {
         totalReceipts: receiptCount,
-        thisMonthReceipts: monthReceipts.length,
         totalSpent,
-        thisMonthSpent,
         totalSavings
       });
 
@@ -95,7 +90,7 @@ export default function Home() {
         totalSpent,
         receiptCount,
         averageSpent: receiptCount > 0 ? totalSpent / receiptCount : 0,
-        thisMonth: thisMonthSpent,
+        thisMonth: totalSpent,
         totalSavings,
       });
     } catch (error) {
@@ -106,6 +101,15 @@ export default function Home() {
   const handleUploadSuccess = () => {
     fetchStats();
     setShowUploadModal(false);
+  };
+
+  const getMonthLabel = () => {
+    if (!selectedMonth) {
+      return 'This Month';
+    }
+    const [year, month] = selectedMonth.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
 
   const tabs = [
@@ -140,6 +144,27 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Month Selector */}
+        <div className="mb-4 sm:mb-6 flex items-center gap-3 sm:gap-4 bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg">
+          <label className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300">
+            View Period:
+          </label>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            className="flex-1 px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-800 transition-all outline-none text-sm sm:text-base font-medium"
+          />
+          {selectedMonth && (
+            <button
+              onClick={() => setSelectedMonth('')}
+              className="px-3 sm:px-4 py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
+            >
+              Current Month
+            </button>
+          )}
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
           {/* This Month */}
@@ -147,7 +172,7 @@ export default function Home() {
             <div className="absolute top-0 right-0 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full -mr-10 -mt-10 sm:-mr-16 sm:-mt-16" />
             <div className="relative p-3 sm:p-4 lg:p-6">
               <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">This Month</p>
+                <p className="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">{getMonthLabel()}</p>
                 <div className="p-2 sm:p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl">
                   <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
@@ -238,7 +263,7 @@ export default function Home() {
               <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3 sm:mb-4">
                 Spending Analytics
               </h2>
-              <SpendingChart onRefresh={fetchStats} />
+              <SpendingChart onRefresh={fetchStats} selectedMonth={selectedMonth} />
             </div>
           )}
 
