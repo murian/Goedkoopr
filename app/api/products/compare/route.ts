@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find all items with similar product names across different stores
-    const items = db
+    const items: PriceItem[] = db
       .prepare(`
         SELECT
           ri.product_name,

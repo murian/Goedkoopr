@@ -68,7 +68,12 @@ export async function POST(request: NextRequest) {
     // Convert file to base64
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    const base64 = buffer.toString('base64');
+
+    // Get MIME type from file or default to image/jpeg
+    const mimeType = file.type || 'image/jpeg';
+
+    // Create proper data URI for AI service
+    const base64 = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
     // Parse receipt with AI
     const parsedReceipt = await parseReceiptWithAI(base64);
@@ -87,8 +92,18 @@ export async function POST(request: NextRequest) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
+    // Safely extract file extension with fallback
     const timestamp = Date.now();
-    const filename = `receipt_${timestamp}.${file.name.split('.').pop()}`;
+    let extension = 'jpg'; // Default extension
+    if (file.name && file.name.includes('.')) {
+      const parts = file.name.split('.');
+      const ext = parts[parts.length - 1];
+      if (ext && /^[a-zA-Z0-9]+$/.test(ext)) {
+        extension = ext.toLowerCase();
+      }
+    }
+
+    const filename = `receipt_${timestamp}.${extension}`;
     const filepath = path.join(uploadsDir, filename);
     fs.writeFileSync(filepath, buffer);
 
