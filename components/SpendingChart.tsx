@@ -201,7 +201,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                     outerRadius: 90,
                     stroke: '#fff',
                     strokeWidth: 2
-                  }}
+                  } as any}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell
@@ -283,7 +283,7 @@ export default function SpendingChart({ onRefresh, selectedMonth = '' }: Spendin
                     outerRadius: 110,
                     stroke: '#fff',
                     strokeWidth: 2
-                  }}
+                  } as any}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell

@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/database';
 import { ProductPriceComparison } from '@/lib/types';
 
+interface PriceItem {
+  product_name: string;
+  unit_price: number;
+  quantity: number;
+  currency: string;
+  receipt_date: string;
+  store_name: string;
+  store_location: string | null;
+}
+
 // GET - Compare product prices across stores
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +42,7 @@ export async function GET(request: NextRequest) {
         WHERE ri.product_name LIKE ?
         ORDER BY r.receipt_date DESC
       `)
-      .all(`%${productName}%`);
+      .all(`%${productName}%`) as PriceItem[];
 
     if (items.length === 0) {
       return NextResponse.json(
