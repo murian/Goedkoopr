@@ -1,14 +1,26 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { ParsedReceipt } from './types';
+import db from './database';
 
-// Initialize Gemini API
-const geminiApiKey = process.env.GEMINI_API_KEY;
+// Get API key from environment or database
+function getGeminiApiKey(): string | null {
+  // First check environment variable
+  if (process.env.GEMINI_API_KEY) {
+    return process.env.GEMINI_API_KEY;
+  }
 
-if (!geminiApiKey) {
-  console.warn('GEMINI_API_KEY is not set. Receipt scanning will not work.');
+  // Then check database
+  try {
+    const setting = db
+      .prepare('SELECT value FROM settings WHERE key = ?')
+      .get('gemini_api_key') as { value: string } | undefined;
+
+    return setting?.value || null;
+  } catch (error) {
+    console.error('Error fetching API key from database:', error);
+    return null;
+  }
 }
-
-const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
 
 const RECEIPT_PARSING_PROMPT = `You are a receipt parsing assistant. Analyze the receipt image and extract the following information in JSON format.
 
@@ -131,13 +143,18 @@ Important Rules:
 export async function parseReceiptWithAI(
   imageBase64: string
 ): Promise<ParsedReceipt> {
-  if (!genAI) {
+  const apiKey = getGeminiApiKey();
+
+  if (!apiKey) {
     throw new Error(
-      'Gemini API key is not configured. Please set GEMINI_API_KEY in .env.local'
+      'Gemini API key is not configured. Please provide your Google Gemini API key.'
     );
   }
 
   try {
+    // Initialize Gemini with the API key
+    const genAI = new GoogleGenerativeAI(apiKey);
+
     // Use Gemini 2.5 Flash model
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
@@ -206,7 +223,9 @@ function parseAIResponse(responseText: string): ParsedReceipt {
 }
 
 export async function classifyProduct(productName: string): Promise<string> {
-  if (!genAI) {
+  const apiKey = getGeminiApiKey();
+
+  if (!apiKey) {
     return 'Other';
   }
 
@@ -217,6 +236,7 @@ Product: ${productName}
 Return ONLY the category name, nothing else.`;
 
   try {
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     const result = await model.generateContent(prompt);
     const response = await result.response;

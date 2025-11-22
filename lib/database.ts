@@ -118,6 +118,15 @@ export function initDatabase() {
     )
   `);
 
+  // Settings table for API keys and configuration
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Insert default categories (comprehensive categories for grocery items)
   const categories = [
     { name: 'Fruits & Vegetables', color: '#10B981' },

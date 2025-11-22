@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Upload, Loader2, CheckCircle, AlertCircle, Key, X } from 'lucide-react';
 
 interface ReceiptUploadProps {
   onUploadSuccess?: () => void;
@@ -13,6 +13,60 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [apiKey, setApiKey] = useState('');
+  const [savingApiKey, setSavingApiKey] = useState(false);
+  const [apiKeyExists, setApiKeyExists] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    checkApiKey();
+  }, []);
+
+  const checkApiKey = async () => {
+    try {
+      const response = await fetch('/api/settings?key=gemini_api_key');
+      const data = await response.json();
+      setApiKeyExists(data.exists);
+    } catch (error) {
+      console.error('Error checking API key:', error);
+      setApiKeyExists(false);
+    }
+  };
+
+  const saveApiKey = async () => {
+    if (!apiKey.trim()) {
+      setError('Please enter an API key');
+      return;
+    }
+
+    setSavingApiKey(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key: 'gemini_api_key',
+          value: apiKey.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save API key');
+      }
+
+      setShowApiKeyModal(false);
+      setApiKeyExists(true);
+      setApiKey('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to save API key');
+    } finally {
+      setSavingApiKey(false);
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -33,6 +87,12 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
   const handleUpload = async () => {
     if (!file) {
       setError('Please select a file first');
+      return;
+    }
+
+    // Check if API key exists before uploading
+    if (!apiKeyExists) {
+      setShowApiKeyModal(true);
       return;
     }
 
@@ -71,6 +131,104 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
 
   return (
     <div className="space-y-6">
+      {/* API Key Modal */}
+      {showApiKeyModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl">
+                    <Key className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    Google Gemini API Key
+                  </h3>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowApiKeyModal(false);
+                    setApiKey('');
+                    setError(null);
+                  }}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                To scan receipts with AI, you need a Google Gemini API key. You can get one for free from{' '}
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 dark:text-indigo-400 hover:underline"
+                >
+                  Google AI Studio
+                </a>
+                .
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    API Key
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder="Enter your Google Gemini API key"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !savingApiKey) {
+                        saveApiKey();
+                      }
+                    }}
+                  />
+                </div>
+
+                {error && (
+                  <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowApiKeyModal(false);
+                      setApiKey('');
+                      setError(null);
+                    }}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-semibold"
+                    disabled={savingApiKey}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveApiKey}
+                    disabled={savingApiKey || !apiKey.trim()}
+                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold inline-flex items-center justify-center gap-2"
+                  >
+                    {savingApiKey ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save API Key'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
         Scan Receipt
       </h2>
