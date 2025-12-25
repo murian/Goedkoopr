@@ -121,9 +121,9 @@ export async function POST(request: NextRequest) {
     let store: { id: number | bigint } | undefined;
 
     if (storeLocation) {
-      // Try to find store by both name and location
+      // Try to find store by both name and location (case-insensitive)
       store = db
-        .prepare('SELECT * FROM stores WHERE name = ? AND location = ?')
+        .prepare('SELECT * FROM stores WHERE LOWER(name) = LOWER(?) AND LOWER(location) = LOWER(?)')
         .get(parsedReceipt.store_name, storeLocation) as { id: number | bigint } | undefined;
     }
 
@@ -148,15 +148,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Check for duplicate receipts BEFORE inserting (same store, date, and total)
+    // Use case-insensitive store name matching since AI may extract with different capitalization
     const duplicateCheck = db.prepare(`
       SELECT r.id, r.receipt_date, r.total_amount, s.name as store_name
       FROM receipts r
       LEFT JOIN stores s ON r.store_id = s.id
-      WHERE r.store_id = ?
+      WHERE LOWER(s.name) = LOWER(?)
         AND r.receipt_date = ?
-        AND r.total_amount = ?
+        AND ABS(r.total_amount - ?) < 0.01
       LIMIT 1
-    `).get(store.id, parsedReceipt.receipt_date, parsedReceipt.total_amount);
+    `).get(parsedReceipt.store_name, parsedReceipt.receipt_date, parsedReceipt.total_amount);
 
     if (duplicateCheck) {
       // Delete the uploaded image file since we won't use it
