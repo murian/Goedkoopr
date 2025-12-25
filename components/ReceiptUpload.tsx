@@ -111,6 +111,10 @@ export default function ReceiptUpload({ onUploadSuccess }: ReceiptUploadProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        // Handle duplicate receipt specially
+        if (errorData.duplicate) {
+          throw new Error(errorData.message || 'This receipt has already been uploaded');
+        }
         throw new Error(errorData.error || 'Failed to upload receipt');
       }
 

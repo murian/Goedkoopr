@@ -165,6 +165,42 @@ export async function POST(request: NextRequest) {
 
     const receiptId = receiptResult.lastInsertRowid;
 
+    // Check for duplicate receipts (same store, date, and total)
+    const duplicateCheck = db.prepare(`
+      SELECT r.id, r.receipt_date, r.total_amount, s.name as store_name
+      FROM receipts r
+      LEFT JOIN stores s ON r.store_id = s.id
+      WHERE r.store_id = ?
+        AND r.receipt_date = ?
+        AND r.total_amount = ?
+        AND r.id != ?
+      LIMIT 1
+    `).get(store.id, parsedReceipt.receipt_date, parsedReceipt.total_amount, receiptId);
+
+    if (duplicateCheck) {
+      // Delete the just-created receipt since it's a duplicate
+      db.prepare('DELETE FROM receipts WHERE id = ?').run(receiptId);
+
+      // Also delete the uploaded image file
+      if (fs.existsSync(filepath)) {
+        fs.unlinkSync(filepath);
+      }
+
+      console.warn(`⚠️ DUPLICATE RECEIPT DETECTED and rejected:`);
+      console.warn(`   Store: ${parsedReceipt.store_name}`);
+      console.warn(`   Date: ${parsedReceipt.receipt_date}`);
+      console.warn(`   Amount: €${parsedReceipt.total_amount}`);
+
+      return NextResponse.json(
+        {
+          error: 'Duplicate receipt detected',
+          message: `This receipt has already been uploaded. A receipt from "${parsedReceipt.store_name}" dated ${parsedReceipt.receipt_date} with total €${parsedReceipt.total_amount} already exists in the system.`,
+          duplicate: true
+        },
+        { status: 409 } // 409 Conflict
+      );
+    }
+
     // Insert receipt items
     const insertItem = db.prepare(`
       INSERT INTO receipt_items (receipt_id, product_name, quantity, unit_price, total_price, original_price, discount_amount, product_id)
