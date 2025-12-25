@@ -4,10 +4,11 @@ import db from '@/lib/database';
 // GET receipt by ID with items
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: paramId } = await params;
+    const id = parseInt(paramId);
 
     const receipt = db
       .prepare(`
@@ -48,10 +49,11 @@ export async function GET(
 // DELETE receipt
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id: paramId } = await params;
+    const id = parseInt(paramId);
 
     const result = db.prepare('DELETE FROM receipts WHERE id = ?').run(id);
 
