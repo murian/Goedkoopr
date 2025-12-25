@@ -147,25 +147,7 @@ export async function POST(request: NextRequest) {
       console.log(`✓ Using existing store: "${parsedReceipt.store_name}" at "${storeLocation}"`);
     }
 
-    // Insert receipt
-    const insertReceipt = db.prepare(`
-      INSERT INTO receipts (store_id, receipt_date, total_amount, currency, tax_amount, discount_amount, image_path)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const receiptResult = insertReceipt.run(
-      store.id,
-      parsedReceipt.receipt_date,
-      parsedReceipt.total_amount,
-      parsedReceipt.currency,
-      parsedReceipt.tax_amount,
-      parsedReceipt.discount_amount || 0,
-      `/uploads/${filename}`
-    );
-
-    const receiptId = receiptResult.lastInsertRowid;
-
-    // Check for duplicate receipts (same store, date, and total)
+    // Check for duplicate receipts BEFORE inserting (same store, date, and total)
     const duplicateCheck = db.prepare(`
       SELECT r.id, r.receipt_date, r.total_amount, s.name as store_name
       FROM receipts r
@@ -173,15 +155,11 @@ export async function POST(request: NextRequest) {
       WHERE r.store_id = ?
         AND r.receipt_date = ?
         AND r.total_amount = ?
-        AND r.id != ?
       LIMIT 1
-    `).get(store.id, parsedReceipt.receipt_date, parsedReceipt.total_amount, receiptId);
+    `).get(store.id, parsedReceipt.receipt_date, parsedReceipt.total_amount);
 
     if (duplicateCheck) {
-      // Delete the just-created receipt since it's a duplicate
-      db.prepare('DELETE FROM receipts WHERE id = ?').run(receiptId);
-
-      // Also delete the uploaded image file
+      // Delete the uploaded image file since we won't use it
       if (fs.existsSync(filepath)) {
         fs.unlinkSync(filepath);
       }
@@ -200,6 +178,24 @@ export async function POST(request: NextRequest) {
         { status: 409 } // 409 Conflict
       );
     }
+
+    // Insert receipt
+    const insertReceipt = db.prepare(`
+      INSERT INTO receipts (store_id, receipt_date, total_amount, currency, tax_amount, discount_amount, image_path)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const receiptResult = insertReceipt.run(
+      store.id,
+      parsedReceipt.receipt_date,
+      parsedReceipt.total_amount,
+      parsedReceipt.currency,
+      parsedReceipt.tax_amount,
+      parsedReceipt.discount_amount || 0,
+      `/uploads/${filename}`
+    );
+
+    const receiptId = receiptResult.lastInsertRowid;
 
     // Insert receipt items
     const insertItem = db.prepare(`
