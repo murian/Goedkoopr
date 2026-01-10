@@ -4,11 +4,12 @@ import db from '@/lib/database';
 // PATCH - Update product category
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { category_id } = await request.json();
-    const productId = params.id;
+    const { id } = await params;
+    const productId = id;
 
     if (!category_id) {
       return NextResponse.json(
